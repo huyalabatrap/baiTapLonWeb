@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Nhạc Cụ Store</title>
+    <link rel="stylesheet" href="../css/style.css">
+     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <header>
+         <div class="container">
+            <a href="index.html" class="logo">Nhạc Cụ Store</a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="index.html#guitar">Guitar</a></li>
+                    <li><a href="index.html#piano">Piano</a></li>
+                    <li><a href="index.html#drums">Trống</a></li>
+                    <li><a href="index.html#violin">Violon</a></li>
+                    <li><a href="blog.html" class="active">Blog/Tin tức</a></li>
+                    <li><a href="index.html#contact">Liên hệ</a></li>
+                </ul>
+            </nav>
+             <div class="header-auth-area">
+                 <div class="auth-buttons">
+                    <button id="login-btn" class="btn btn-secondary">Đăng nhập</button>
+                    <button id="register-btn" class="btn btn-primary">Đăng ký</button>
+                </div>
+                <div class="user-info hidden">
+                    <span class="welcome-message">Xin chào, <span id="user-display-name"></span>!</span>
+                    <button id="logout-btn" class="btn btn-link">Đăng xuất</button>
+                </div>
+                 <a href="cart.html" class="header-cart-icon" aria-label="Giỏ hàng">
+                     <i class="fas fa-shopping-cart"></i>
+                     <span id="cart-item-count" class="cart-count">0</span>
+                 </a>
+            </div>
+             <button id="mobile-menu-toggle" aria-label="Toggle Menu">☰</button>
+        </div>
+    </header>
+
+    <main class="blog-page">
+        <div class="container">
+            <h1>Blog & Tin Tức Âm Nhạc</h1>
+
+            <div class="search-bar">
+                <input type="search" placeholder="Tìm kiếm bài viết...">
+                <button type="button">Tìm</button>
+            </div>
+
+            <div class="blog-posts">
+                <article class="blog-post">
+                     <img src="https://via.placeholder.com/800x300/FFECB3/FFFFFF?text=Blog+Post+1" alt="Tiêu đề bài viết 1">
+                    <h2><a href="#">Hướng dẫn chọn đàn Guitar cho người mới bắt đầu</a></h2>
+                    <p class="meta">Đăng bởi Admin | Ngày 10 tháng 4, 2025</p>
+                    <p class="excerpt">Bạn đang muốn học guitar nhưng không biết bắt đầu từ đâu? Việc lựa chọn cây đàn đầu tiên rất quan trọng. Bài viết này sẽ cung cấp những lời khuyên hữu ích...</p>
+                    <a href="#" class="read-more">Đọc thêm →</a>
+                </article>
+
+                <article class="blog-post">
+                     <img src="https://via.placeholder.com/800x300/C5CAE9/FFFFFF?text=Blog+Post+2" alt="Tiêu đề bài viết 2">
+                    <h2><a href="#">Lợi ích của việc học Piano đối với trẻ em</a></h2>
+                    <p class="meta">Đăng bởi Admin | Ngày 5 tháng 4, 2025</p>
+                    <p class="excerpt">Âm nhạc, đặc biệt là piano, mang lại nhiều lợi ích tuyệt vời cho sự phát triển trí tuệ và cảm xúc của trẻ. Cùng tìm hiểu những lợi ích đó là gì...</p>
+                     <a href="#" class="read-more">Đọc thêm →</a>
+                </article>
+
+                 <article class="blog-post">
+                     <img src="https://via.placeholder.com/800x300/B2DFDB/FFFFFF?text=Blog+Post+3" alt="Tiêu đề bài viết 3">
+                    <h2><a href="#">So sánh trống cơ và trống điện: Nên chọn loại nào?</a></h2>
+                    <p class="meta">Đăng bởi Admin | Ngày 1 tháng 4, 2025</p>
+                    <p class="excerpt">Trống cơ và trống điện đều có những ưu và nhược điểm riêng. Việc lựa chọn phụ thuộc vào nhu cầu, không gian và ngân sách của bạn. Bài viết này sẽ giúp bạn đưa ra quyết định...</p>
+                     <a href="#" class="read-more">Đọc thêm →</a>
+                </article>
+
+                <nav class="pagination">
+                    <a href="#" class="active">1</a>
+                    <a href="#">2</a>
+                    <a href="#">3</a>
+                    <a href="#">Trang sau →</a>
+                </nav>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+       <div class="container">
+            <p>&copy; 2025 Cửa Hàng Nhạc Cụ Online. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="auth-tabs">
+                <button class="tab-button active" data-tab="login">Đăng nhập</button>
+                <button class="tab-button" data-tab="register">Đăng ký</button>
+            </div>
+            <form id="auth-form" novalidate>
+                 <div class="form-content" id="login-content">
+                    <h3>Đăng nhập vào tài khoản</h3>
+                     <div class="form-error-message" id="login-form-error"></div>
+                    <div class="form-group">
+                        <label for="login-username">Tên người dùng hoặc Email <span class="required">*</span></label>
+                        <input type="text" id="login-username" name="login-username" required>
+                        <span class="error-message"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Mật khẩu <span class="required">*</span></label>
+                        <input type="password" id="login-password" name="login-password" required>
+                        <span class="error-message"></span>
+                    </div>
+                     <button type="submit" class="btn btn-primary btn-submit">Đăng nhập</button>
+                     <p class="form-switch">Chưa có tài khoản? <a href="#" class="switch-to-register">Đăng ký ngay</a></p>
+                </div>
+                <div class="form-content hidden" id="register-content">
+                     <h3>Tạo tài khoản mới</h3>
+                    <div class="form-group">
+                        <label for="register-username">Tên người dùng <span class="required">*</span></label>
+                        <input type="text" id="register-username" name="register-username" required>
+                         <span class="error-message"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email <span class="required">*</span></label>
+                        <input type="email" id="register-email" name="register-email" required>
+                         <span class="error-message"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Mật khẩu (tối thiểu 6 ký tự) <span class="required">*</span></label>
+                        <input type="password" id="register-password" name="register-password" required minlength="6">
+                         <span class="error-message"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm-password">Xác nhận mật khẩu <span class="required">*</span></label>
+                        <input type="password" id="register-confirm-password" name="register-confirm-password" required>
+                         <span class="error-message"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-submit">Đăng ký</button>
+                    <p class="form-switch">Đã có tài khoản? <a href="#" class="switch-to-login">Đăng nhập</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="../js/script.js"></script>
+</body>
+</html>

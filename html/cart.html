@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ Hàng - Nhạc Cụ Store</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">Nhạc Cụ Store</a>
+            <nav>
+                 <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="index.html#guitar">Guitar</a></li>
+                    <li><a href="index.html#piano">Piano</a></li>
+                    <li><a href="index.html#drums">Trống</a></li>
+                    <li><a href="index.html#violin">Violon</a></li>
+                    <li><a href="blog.html">Blog/Tin tức</a></li>
+                    <li><a href="index.html#contact">Liên hệ</a></li>
+                </ul>
+            </nav>
+            <div class="header-auth-area">
+                <div class="auth-buttons">
+                    <button id="login-btn" class="btn btn-secondary">Đăng nhập</button>
+                    <button id="register-btn" class="btn btn-primary">Đăng ký</button>
+                </div>
+                <div class="user-info hidden">
+                    <span class="welcome-message">Xin chào, <span id="user-display-name"></span>!</span>
+                    <button id="logout-btn" class="btn btn-link">Đăng xuất</button>
+                </div>
+                 <a href="cart.html" class="header-cart-icon" aria-label="Giỏ hàng">
+                     <i class="fas fa-shopping-cart"></i>
+                     <span id="cart-item-count" class="cart-count">0</span>
+                 </a>
+            </div>
+            <button id="mobile-menu-toggle" aria-label="Toggle Menu">☰</button>
+        </div>
+    </header>
+
+    <main class="cart-page">
+        <div class="container">
+            <h1>Giỏ Hàng Của Bạn</h1>
+
+            <div id="cart-container">
+                <div class="cart-items-list">
+                    </div>
+
+                <div class="cart-empty-message hidden">
+                    <p>Giỏ hàng của bạn đang trống.</p>
+                    <a href="index.html" class="btn btn-primary">Tiếp tục mua sắm</a>
+                </div>
+
+                <div class="cart-summary hidden">
+                    <div class="summary-details">
+                        <h2>Tổng Cộng</h2>
+                        <p id="cart-total-price">0 VNĐ</p>
+                    </div>
+                    <button id="checkout-btn" class="btn btn-primary btn-checkout">Tiến hành thanh toán</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Cửa Hàng Nhạc Cụ Online. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="auth-tabs">
+                <button class="tab-button active" data-tab="login">Đăng nhập</button>
+                <button class="tab-button" data-tab="register">Đăng ký</button>
+            </div>
+            <form id="auth-form" novalidate>
+                <div class="form-content" id="login-content">
+                    <h3>Đăng nhập vào tài khoản</h3>
+                    <div class="form-error-message" id="login-form-error"></div>
+                    <div class="form-group">
+                        <label for="login-username">Tên người dùng hoặc Email <span class="required">*</span></label>
+                        <input type="text" id="login-username" name="login-username" required>
+                        <span class="error-message"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Mật khẩu <span class="required">*</span></label>
+                        <input type="password" id="login-password" name="login-password" required>
+                        <span class="error-message"></span>
+                    </div>
+                     <button type="submit" class="btn btn-primary btn-submit">Đăng nhập</button>
+                     <p class="form-switch">Chưa có tài khoản? <a href="#" class="switch-to-register">Đăng ký ngay</a></p>
+                </div>
+                <div class="form-content hidden" id="register-content">
+                    <h3>Tạo tài khoản mới</h3>
+                    <div class="form-group">
+                        <label for="register-username">Tên người dùng <span class="required">*</span></label>
+                        <input type="text" id="register-username" name="register-username" required>
+                         <span class="error-message"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email <span class="required">*</span></label>
+                        <input type="email" id="register-email" name="register-email" required>
+                         <span class="error-message"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Mật khẩu (tối thiểu 6 ký tự) <span class="required">*</span></label>
+                        <input type="password" id="register-password" name="register-password" required minlength="6">
+                         <span class="error-message"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm-password">Xác nhận mật khẩu <span class="required">*</span></label>
+                        <input type="password" id="register-confirm-password" name="register-confirm-password" required>
+                         <span class="error-message"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-submit">Đăng ký</button>
+                    <p class="form-switch">Đã có tài khoản? <a href="#" class="switch-to-login">Đăng nhập</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="../js/script.js"></script>
+</body>
+</html>
