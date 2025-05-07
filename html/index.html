@@ -4,173 +4,252 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cửa Hàng Nhạc Cụ Online</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css"> <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <div class="container">
-            <a href="index.html" class="logo">Nhạc Cụ Store</a>
-            <nav>
-                <ul>
-                    <li><a href="index.html" class="active">Trang chủ</a></li>
-                    <li><a href="#guitar">Guitar</a></li>
-                    <li><a href="#piano">Piano</a></li>
-                    <li><a href="#drums">Trống</a></li>
-                    <li><a href="#violin">Violon</a></li>
-                    <li><a href="blog.html">Blog/Tin tức</a></li>
-                    <li><a href="#contact">Liên hệ</a></li>
-                </ul>
-            </nav>
-            <div class="header-auth-area">
-                <div class="auth-buttons">
-                    <button id="login-btn" class="btn btn-secondary">Đăng nhập</button>
-                    <button id="register-btn" class="btn btn-primary">Đăng ký</button>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">Nhạc Cụ Store</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link active" href="index.html">Trang chủ</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#guitar">Guitar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#piano">Piano</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#drums">Trống</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#violin">Violon</a></li>
+                        <li class="nav-item"><a class="nav-link" href="blog.html">Blog/Tin tức</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#contact">Liên hệ</a></li>
+                    </ul>
+                    <form class="d-flex me-3" id="product-search-form">
+                        <input class="form-control me-2" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" id="search-input-header">
+                        <button class="btn btn-outline-success" type="submit" id="search-button-header">Tìm</button>
+                    </form>
+                    <div class="header-auth-area d-flex align-items-center">
+                        <div class="auth-buttons me-2">
+                            <button id="login-btn" class="btn btn-outline-secondary btn-sm">Đăng nhập</button>
+                            <button id="register-btn" class="btn btn-primary btn-sm">Đăng ký</button>
+                        </div>
+                        <div class="user-info hidden me-2">
+                            <span class="welcome-message">Xin chào, <span id="user-display-name"></span>!</span>
+                            <button id="logout-btn" class="btn btn-link btn-sm">Đăng xuất</button>
+                        </div>
+                        <a href="cart.html" class="header-cart-icon text-decoration-none" aria-label="Giỏ hàng">
+                            <i class="fas fa-shopping-cart fs-5"></i>
+                            <span id="cart-item-count" class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle" style="font-size: 0.75em;">0</span>
+                        </a>
+                    </div>
                 </div>
-                <div class="user-info hidden">
-                    <span class="welcome-message">Xin chào, <span id="user-display-name"></span>!</span>
-                    <button id="logout-btn" class="btn btn-link">Đăng xuất</button>
-                </div>
-                 <a href="cart.html" class="header-cart-icon" aria-label="Giỏ hàng">
-                     <i class="fas fa-shopping-cart"></i>
-                     <span id="cart-item-count" class="cart-count">0</span>
-                 </a>
             </div>
-             <button id="mobile-menu-toggle" aria-label="Toggle Menu">☰</button>
-        </div>
+        </nav>
     </header>
 
     <main>
-        <section class="hero">
+        <section class="hero text-center py-5 bg-light">
             <div class="container">
-                <h1>Khám phá thế giới âm nhạc</h1>
-                <p>Tìm kiếm nhạc cụ hoàn hảo cho bạn tại cửa hàng của chúng tôi.</p>
-                <a href="#guitar" class="btn btn-primary">Xem Sản Phẩm</a>
+                <h1 class="display-4">Khám phá thế giới âm nhạc</h1>
+                <p class="lead">Tìm kiếm nhạc cụ hoàn hảo cho bạn tại cửa hàng của chúng tôi.</p>
+                <a href="#guitar" class="btn btn-primary btn-lg">Xem Sản Phẩm</a>
             </div>
         </section>
 
-        <section id="guitar" class="product-section">
-            <div class="container">
-                <h2>Guitar Nổi Bật</h2>
-                <div class="product-grid">
-                    <div class="product-card">
-                        <a href="product-detail.html?id=guitar1">
-                            <img src="../img/gt1.jpg" alt="Guitar Acoustic ABC">
-                            <h3>Guitar Acoustic ABC</h3>
-                            <p class="price">5.500.000 VNĐ</p>
-                        </a>
+        <section id="search-results-container" class="product-section py-5" style="display: none;">
+             <div class="container">
+                <h2>Kết quả tìm kiếm</h2>
+                
+                <div id="search-results-grid" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    </div>
+            </div>
+        </section>
+       <form class="d-flex me-3 position-relative" id="product-search-form">
+                    <input class="form-control me-2" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" id="search-input-header" autocomplete="off">
+                    <button class="btn btn-outline-success" type="submit" id="search-button-header">Tìm</button>
+                    <div id="search-suggestions-header" class="dropdown-menu w-100" style="max-height: 250px; overflow-y: auto;"></div>
+                </form>
+        <div id="original-product-sections">
+            <section id="guitar" class="product-section py-5">
+                <div class="container">
+                    <h2>Guitar Nổi Bật</h2>
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 product-grid">
+                        <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=guitar1" class="text-decoration-none text-dark">
+                                    <img src="../img/gt1.jpg" class="card-img-top" alt="Guitar Acoustic ABC">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Guitar Acoustic ABC</h5>
+                                        <p class="card-text price">5.500.000 VNĐ</p>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
-                    <div class="product-card">
-                         <a href="product-detail.html?id=guitar2">
-                            <img src="../img/gtd1.jpg" alt="Guitar Điện ">
-                            <h3>Đàn Guitar Điện Donner DST-550, Black</h3>
-                            <p class="price">8.200.000 VNĐ</p>
-                        </a>
+                        <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=guitar2" class="text-decoration-none text-dark">
+                                    <img src="../img/gtd1.jpg" class="card-img-top" alt="Guitar Điện">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Đàn Guitar Điện Donner DST-550, Black</h5>
+                                        <p class="card-text price">8.200.000 VNĐ</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                         <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=guitar_donner_dst550" class="text-decoration-none text-dark">
+                                    <img src="../img/gtl1.jpg" class="card-img-top" alt="Đàn Guitar Classic Cordoba C1M 1/4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Đàn Guitar Classic Cordoba C1M 1/4</h5>
+                                        <p class="card-text price">5.200.000 VNĐ</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                     <div class="product-card">
-                         <a href="product-detail.html?id=guitar_donner_dst550">
-                            <img src="../img/gtl1.jpg" alt="Đàn Guitar Classic Cordoba C1M 1/4">
-                            <h3>Đàn Guitar Classic Cordoba C1M 1/4</h3>
-                            <p class="price">5.200.000 VNĐ</p>
-                        </a>
-                    </div>
-                </div>
-                 <a href="#" class="view-all-btn">Xem tất cả Guitar →</a>
-            </div>
-        </section>
-
-        <section id="piano" class="product-section">
-            <div class="container">
-                <h2>Piano Nổi Bật</h2>
-                <div class="product-grid">
-                     <div class="product-card">
-                        <a href="product-detail.html?id=piano1">
-                            <img src="../img/yamaha1.jpg" alt="Piano Đứng Yamaha U1">
-                            <h3>Piano Đứng Yamaha U1</h3>
-                            <p class="price">85.000.000 VNĐ</p>
-                        </a>
-                    </div>
-                    <div class="product-card">
-                         <a href="product-detail.html?id=piano2">
-                            <img src="../img/pn1.jpg" alt="Piano Điện Casio PX-S1100">
-                            <h3>Piano Điện Casio PX-S1100</h3>
-                            <p class="price">18.900.000 VNĐ</p>
-                        </a>
-                    </div>
-                    <div class="product-card">
-                         <a href="product-detail.html?id=piano3">
-                            <img src="../img/pn5.jpg" alt="Grand Piano Kawai GL-10">
-                            <h3>Grand Piano Kawai GL-10</h3>
-                            <p class="price">350.000.000 VNĐ</p>
-                        </a>
+                    <div class="text-center mt-4">
+                        <a href="#" class="btn btn-outline-primary view-all-btn">Xem tất cả Guitar →</a>
                     </div>
                 </div>
-                 <a href="#" class="view-all-btn">Xem tất cả Piano →</a>
-            </div>
-        </section>
+            </section>
 
-        <section id="drums" class="product-section">
-            <div class="container">
-                <h2>Trống Nổi Bật</h2>
-                <div class="product-grid">
-                     <div class="product-card">
-                        <a href="product-detail.html?id=drum1">
-                            <img src="../img/dr1.jpg" alt="Bộ Trống Jazz Pearl Roadshow">
-                            <h3>Bộ Trống Jazz Pearl Roadshow</h3>
-                            <p class="price">15.600.000 VNĐ</p>
-                        </a>
+            <section id="piano" class="product-section py-5 bg-light">
+                <div class="container">
+                    <h2>Piano Nổi Bật</h2>
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 product-grid">
+                         <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=piano1" class="text-decoration-none text-dark">
+                                    <img src="../img/yamaha1.jpg" class="card-img-top" alt="Piano Đứng Yamaha U1">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Piano Đứng Yamaha U1</h5>
+                                        <p class="card-text price">85.000.000 VNĐ</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                         <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=piano2" class="text-decoration-none text-dark">
+                                    <img src="../img/pn1.jpg" class="card-img-top" alt="Piano Điện Casio PX-S1100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Piano Điện Casio PX-S1100</h5>
+                                        <p class="card-text price">18.900.000 VNĐ</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=piano3" class="text-decoration-none text-dark">
+                                    <img src="../img/pn5.jpg" class="card-img-top" alt="Grand Piano Kawai GL-10">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Grand Piano Kawai GL-10</h5>
+                                        <p class="card-text price">350.000.000 VNĐ</p>
+                                     </div>
+                                 </a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="product-card">
-                         <a href="product-detail.html?id=drum2">
-                            <img src="../img/dr5.jpg" alt="Bộ Trống Điện Roland TD-1DMK">
-                            <h3>Bộ Trống Điện Roland TD-1DMK</h3>
-                            <p class="price">22.500.000 VNĐ</p>
-                        </a>
-                    </div>
-                    <div class="product-card">
-                         <a href="product-detail.html?id=drum3">
-                            <img src="../img/dr10.jpg" alt="Trống Cajon Meinl">
-                            <h3>Trống Cajon Meinl</h3>
-                            <p class="price">3.100.000 VNĐ</p>
-                        </a>
+                     <div class="text-center mt-4">
+                        <a href="#" class="btn btn-outline-primary view-all-btn">Xem tất cả Piano →</a>
                     </div>
                 </div>
-                 <a href="#" class="view-all-btn">Xem tất cả Trống →</a>
-            </div>
-        </section>
+            </section>
 
-        <section id="violin" class="product-section">
-            <div class="container">
-                <h2>Violon Nổi Bật</h2>
-                <div class="product-grid">
-                     <div class="product-card">
-                        <a href="product-detail.html?id=violin1">
-                            <img src="../img/vi1.jpg" alt="Violin Acoustic Size 4/4">
-                            <h3>Violin Acoustic Size 4/4</h3>
-                            <p class="price">4.200.000 VNĐ</p>
-                        </a>
+            <section id="drums" class="product-section py-5">
+                <div class="container">
+                    <h2>Trống Nổi Bật</h2>
+                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 product-grid">
+                        <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=drum1" class="text-decoration-none text-dark">
+                                    <img src="../img/dr1.jpg" class="card-img-top" alt="Bộ Trống Jazz Pearl Roadshow">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Bộ Trống Jazz Pearl Roadshow</h5>
+                                        <p class="card-text price">15.600.000 VNĐ</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                         <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=drum2" class="text-decoration-none text-dark">
+                                    <img src="../img/dr5.jpg" class="card-img-top" alt="Bộ Trống Điện Roland TD-1DMK">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Bộ Trống Điện Roland TD-1DMK</h5>
+                                        <p class="card-text price">22.500.000 VNĐ</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=drum3" class="text-decoration-none text-dark">
+                                    <img src="../img/dr10.jpg" class="card-img-top" alt="Trống Cajon Meinl">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Trống Cajon Meinl</h5>
+                                        <p class="card-text price">3.100.000 VNĐ</p>
+                                     </div>
+                                 </a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="product-card">
-                         <a href="product-detail.html?id=violin2">
-                            <img src="../img/vi11.jpg" alt="Violin Điện Yamaha YEV104">
-                            <h3>Violin Điện Yamaha YEV104</h3>
-                            <p class="price">19.800.000 VNĐ</p>
-                        </a>
-                    </div>
-                    <div class="product-card">
-                         <a href="product-detail.html?id=violin3">
-                            <img src="../img/vi21.jpg" alt="Violin Size 1/2 cho người mới bắt đầu">
-                            <h3>Violin Size 1/2 Cho Bé</h3>
-                            <p class="price">2.900.000 VNĐ</p>
-                        </a>
+                    <div class="text-center mt-4">
+                        <a href="#" class="btn btn-outline-primary view-all-btn">Xem tất cả Trống →</a>
                     </div>
                 </div>
-                 <a href="#" class="view-all-btn">Xem tất cả Violon →</a>
-            </div>
-        </section>
+            </section>
 
-        <section id="contact" class="contact-section">
+            <section id="violin" class="product-section py-5 bg-light">
+                <div class="container">
+                    <h2>Violon Nổi Bật</h2>
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 product-grid">
+                         <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=violin1" class="text-decoration-none text-dark">
+                                    <img src="../img/vi1.jpg" class="card-img-top" alt="Violin Acoustic Size 4/4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Violin Acoustic Size 4/4</h5>
+                                        <p class="card-text price">4.200.000 VNĐ</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                         <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=violin2" class="text-decoration-none text-dark">
+                                    <img src="../img/vi11.jpg" class="card-img-top" alt="Violin Điện Yamaha YEV104">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Violin Điện Yamaha YEV104</h5>
+                                        <p class="card-text price">19.800.000 VNĐ</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                         <div class="col">
+                            <div class="card h-100 product-card">
+                                <a href="product-detail.html?id=violin3" class="text-decoration-none text-dark">
+                                    <img src="../img/vi21.jpg" class="card-img-top" alt="Violin Size 1/2 cho người mới bắt đầu">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Violin Size 1/2 Cho Bé</h5>
+                                        <p class="card-text price">2.900.000 VNĐ</p>
+                                     </div>
+                                 </a>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="text-center mt-4">
+                        <a href="#" class="btn btn-outline-primary view-all-btn">Xem tất cả Violon →</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section id="contact" class="contact-section py-5">
              <div class="container">
                  <h2>Liên Hệ</h2>
                  <p>Nếu bạn có bất kỳ câu hỏi nào, đừng ngần ngại liên hệ với chúng tôi:</p>
@@ -178,74 +257,86 @@
                  <p>Địa chỉ: 123 Đường Âm Nhạc, Quận Giai Điệu, Thành Phố Hòa Ca</p>
              </div>
         </section>
-
     </main>
 
-    <footer>
+    <footer class="py-4 bg-dark text-white text-center">
         <div class="container">
-            <p>&copy; 2025 Cửa Hàng Nhạc Cụ Online. All rights reserved.</p>
+            <p class="mb-0">&copy; 2025 Cửa Hàng Nhạc Cụ Online. All rights reserved.</p>
         </div>
     </footer>
 
-    <div id="auth-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <div class="auth-tabs">
-                <button class="tab-button active" data-tab="login">Đăng nhập</button>
-                <button class="tab-button" data-tab="register">Đăng ký</button>
+    <div class="modal fade" id="auth-modal-bootstrap" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="auth-tabs nav nav-tabs">
+                        <button class="nav-link active tab-button" data-tab="login" data-bs-toggle="tab" data-bs-target="#login-content-bootstrap">Đăng nhập</button>
+                        <button class="nav-link tab-button" data-tab="register" data-bs-toggle="tab" data-bs-target="#register-content-bootstrap">Đăng ký</button>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="auth-form" novalidate>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active form-content" id="login-content-bootstrap">
+                                <h3>Đăng nhập vào tài khoản</h3>
+                                <div class="form-error-message alert alert-danger mt-2" id="login-form-error" style="display:none;"></div>
+                                <div class="mb-3 form-group">
+                                    <label for="login-username" class="form-label">Tên người dùng hoặc Email <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="login-username" name="login-username" required>
+                                    <div class="invalid-feedback error-message"></div>
+                                </div>
+                                <div class="mb-3 form-group">
+                                    <label for="login-password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="login-password" name="login-password" required>
+                                    <div class="invalid-feedback error-message"></div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 btn-submit">Đăng nhập</button>
+                                <p class="mt-3 text-center form-switch">Chưa có tài khoản? <a href="#" class="switch-to-register">Đăng ký ngay</a></p>
+                            </div>
+
+                            <div class="tab-pane fade form-content" id="register-content-bootstrap">
+                                <h3>Tạo tài khoản mới</h3>
+                                <div class="mb-3 form-group">
+                                    <label for="register-username" class="form-label">Tên người dùng <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="register-username" name="register-username" required>
+                                    <div class="invalid-feedback error-message"></div>
+                                </div>
+                                <div class="mb-3 form-group">
+                                    <label for="register-email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="register-email" name="register-email" required>
+                                    <div class="invalid-feedback error-message"></div>
+                                </div>
+                                <div class="mb-3 form-group">
+                                    <label for="register-password" class="form-label">Mật khẩu (tối thiểu 6 ký tự) <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="register-password" name="register-password" required minlength="6">
+                                    <div class="invalid-feedback error-message"></div>
+                                </div>
+                                <div class="mb-3 form-group">
+                                    <label for="register-confirm-password" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="register-confirm-password" name="register-confirm-password" required>
+                                    <div class="invalid-feedback error-message"></div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 btn-submit">Đăng ký</button>
+                                <p class="mt-3 text-center form-switch">Đã có tài khoản? <a href="#" class="switch-to-login">Đăng nhập</a></p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <form id="auth-form" novalidate>
-                <div class="form-content" id="login-content">
-                    <h3>Đăng nhập vào tài khoản</h3>
-                    <div class="form-error-message" id="login-form-error"></div> <div class="form-group">
-                        <label for="login-username">Tên người dùng hoặc Email <span class="required">*</span></label>
-                        <input type="text" id="login-username" name="login-username" required>
-                        <span class="error-message"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="login-password">Mật khẩu <span class="required">*</span></label>
-                        <input type="password" id="login-password" name="login-password" required>
-                        <span class="error-message"></span>
-                    </div>
-                     <button type="submit" class="btn btn-primary btn-submit">Đăng nhập</button>
-                     <p class="form-switch">Chưa có tài khoản? <a href="#" class="switch-to-register">Đăng ký ngay</a></p>
-                </div>
-
-                <div class="form-content hidden" id="register-content">
-                    <h3>Tạo tài khoản mới</h3>
-                    <div class="form-group">
-                        <label for="register-username">Tên người dùng <span class="required">*</span></label>
-                        <input type="text" id="register-username" name="register-username" required>
-                         <span class="error-message"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-email">Email <span class="required">*</span></label>
-                        <input type="email" id="register-email" name="register-email" required>
-                         <span class="error-message"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-password">Mật khẩu (tối thiểu 6 ký tự) <span class="required">*</span></label>
-                        <input type="password" id="register-password" name="register-password" required minlength="6">
-                         <span class="error-message"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="register-confirm-password">Xác nhận mật khẩu <span class="required">*</span></label>
-                        <input type="password" id="register-confirm-password" name="register-confirm-password" required>
-                         <span class="error-message"></span>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-submit">Đăng ký</button>
-                    <p class="form-switch">Đã có tài khoản? <a href="#" class="switch-to-login">Đăng nhập</a></p>
-                </div>
-            </form>
         </div>
     </div>
 
-    <div id="welcome-notification" class="welcome-modal">
-        <div class="welcome-modal-content">
-            <span class="welcome-close-button">&times;</span>
-            <h2>Chào mừng bạn đến với web!</h2>
-            <pre class="admin-info">
+<!-- Modal HTML -->
+<div class="modal fade" id="welcome-notification-bootstrap" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="welcomeModalLabel">Chào mừng bạn đến với web!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <pre class="admin-info">
 Thông tin admin:
   MSSV: 23654451
   Họ và tên: Nguyễn Thành Huy
@@ -254,10 +345,12 @@ Dể test tài khoản:
     Tên đăng nhập: Abcxyz123@gmail.com
     Mật khẩu: Abcxyz123
 Lưu ý: tài khoản này chỉ để  test chức năng đăng nhập!
-            </pre>
+                </pre>
+            </div>
         </div>
     </div>
-
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/script.js"></script>
 </body>
 </html>
