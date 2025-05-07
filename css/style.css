@@ -1282,3 +1282,11 @@ footer {
 .scroll-lock {
     overflow: hidden;
 }
+/* Đảm bảo modal và backdrop hiển thị đúng */
+.modal-backdrop {
+    z-index: 1040; /* Đảm bảo backdrop nằm dưới modal */
+}
+
+.modal {
+    z-index: 1050; /* Đảm bảo modal nằm trên backdrop */
+}
