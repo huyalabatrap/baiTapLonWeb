@@ -31,9 +31,13 @@
                         <button class="btn btn-outline-success" type="submit" id="search-button-header">Tìm</button>
                     </form>
                     <div class="header-auth-area d-flex align-items-center">
-                        <div class="auth-buttons me-2">
-                            <button id="login-btn" class="btn btn-outline-secondary btn-sm">Đăng nhập</button>
-                            <button id="register-btn" class="btn btn-primary btn-sm">Đăng ký</button>
+                        <div class="auth-buttons d-flex">
+                            <button id="login-btn">Đăng nhập</button>
+                            <button id="register-btn">Đăng ký</button>
+                        </div>
+                        <div class="user-info d-none align-items-center">
+                            <span id="user-display-name"></span>
+                            <button id="logout-btn" class="btn btn-link">Đăng xuất</button>
                         </div>
                         <div class="user-info hidden me-2">
                             <span class="welcome-message">Xin chào, <span id="user-display-name"></span>!</span>
