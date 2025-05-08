@@ -1,172 +1,102 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const currentPage = window.location.pathname;
-
-    // Xác định các phần tử dựa trên trang hiện tại
-    let loginUsernameInput, registerUsernameInput;
-
-    if (currentPage.includes('index.html')) {
-        loginUsernameInput = document.getElementById('login-username-index');
-        registerUsernameInput = document.getElementById('register-username-index');
-    } else if (currentPage.includes('product-detail.html')) {
-        loginUsernameInput = document.getElementById('login-username-detail');
-        registerUsernameInput = document.getElementById('register-username-detail');
-    }
-
-    // Xử lý sự kiện đăng nhập
-    if (loginUsernameInput) {
-        loginUsernameInput.addEventListener('input', () => {
-            console.log('Đang nhập tên đăng nhập trên trang:', currentPage);
-        });
-    }
-
-    // Xử lý sự kiện đăng ký
-    if (registerUsernameInput) {
-        registerUsernameInput.addEventListener('input', () => {
-            console.log('Đang nhập tên đăng ký trên trang:', currentPage);
-        });
-    }
-});
-document.addEventListener('DOMContentLoaded', () => {
-    let welcomeModalInstance;
-    const welcomeModalEl = document.getElementById('welcome-notification-bootstrap');
-
-    if (welcomeModalEl) {
-        // Khởi tạo modal Bootstrap
-        welcomeModalInstance = new bootstrap.Modal(welcomeModalEl);
-
-        // Hiển thị modal sau 3 giây
-        setTimeout(() => {
-            welcomeModalInstance.show();
-        }, 3000);
-
-        // Đảm bảo modal có thể đóng
-        welcomeModalEl.addEventListener('hidden.bs.modal', () => {
-            console.log('Modal đã được đóng.');
-        });
-
-        // Xử lý sự kiện nút đóng
-        const closeButton = welcomeModalEl.querySelector('.btn-close');
-        if (closeButton) {
-            closeButton.addEventListener('click', () => {
-                welcomeModalInstance.hide();
-            });
-        }
-    }
-});
-const handleLogin = (email, password) => {
+    // --- Default Credentials (for testing) ---
     const defaultUser = {
         email: "Abcxyz123@gmail.com",
-        password: "Abcxyz123"
-    };
-
-    if (email === defaultUser.email && password === defaultUser.password) {
-        alert('Đăng nhập thành công!');
-        sessionStorage.setItem('loggedInUser', email);
-        updateHeaderUI();
-    } else {
-        alert('Tên đăng nhập hoặc mật khẩu không đúng!');
-    }
-};
-const handleRegister = (username, email, password, confirmPassword) => {
-    if (password !== confirmPassword) {
-        alert('Mật khẩu và xác nhận mật khẩu không khớp!');
-        return;
-    }
-
-    alert(`Đăng ký thành công! Chào mừng, ${username}`);
-};
-document.addEventListener('DOMContentLoaded', () => {
-    // --- Default Credentials ---
-    const defaultUser = {
-        email: "Abcxyz123@gmail.com",
+        username: "Abcxyz123",
         password: "Abcxyz123"
     };
 
     // --- Element References ---
-    // Ensure elements are selected after DOM is loaded
-    const menuToggle = document.getElementById('mobile-menu-toggle');
-    const nav = document.querySelector('header nav');
-    const modal = document.getElementById('auth-modal');
+    const authForm = document.getElementById('auth-form');
     const loginBtn = document.getElementById('login-btn');
     const registerBtn = document.getElementById('register-btn');
-    const closeModalBtn = modal ? modal.querySelector('.close-button') : null;
-    const authTabs = modal ? modal.querySelectorAll('.tab-button') : [];
-    const formContents = modal ? modal.querySelectorAll('.form-content') : [];
-    const authForm = document.getElementById('auth-form');
-    const switchToRegisterLinks = modal ? modal.querySelectorAll('.switch-to-register') : [];
-    const switchToLoginLinks = modal ? modal.querySelectorAll('.switch-to-login') : [];
-    const welcomeModal = document.getElementById('welcome-notification');
-    const welcomeCloseBtn = welcomeModal ? welcomeModal.querySelector('.welcome-close-button') : null;
-    const cartIconCount = document.getElementById('cart-item-count');
-
-    // Header Auth Area Elements
+    const logoutBtn = document.getElementById('logout-btn');
+    const loginFormErrorDiv = document.getElementById('login-form-error');
+    const authModalEl = document.getElementById('auth-modal-bootstrap');
+    let authModalInstance;
+    if (authModalEl) {
+        authModalInstance = new bootstrap.Modal(authModalEl);
+    }
+    const switchToRegisterLinks = document.querySelectorAll('.switch-to-register');
+    const switchToLoginLinks = document.querySelectorAll('.switch-to-login');
     const authButtonsContainer = document.querySelector('.auth-buttons');
     const userInfoContainer = document.querySelector('.user-info');
     const userDisplayNameSpan = document.getElementById('user-display-name');
-    const logoutBtn = document.getElementById('logout-btn');
+    const cartIconCount = document.getElementById('cart-item-count');
 
-    // Login form error message display
-    const loginFormErrorDiv = document.getElementById('login-form-error');
+    // --- User Management Functions ---
+    const getUsers = () => {
+        const usersJson = localStorage.getItem('registeredUsers');
+        return usersJson ? JSON.parse(usersJson) : [defaultUser];
+    };
 
+    const saveUsers = (users) => {
+        try {
+            localStorage.setItem('registeredUsers', JSON.stringify(users));
+        } catch (e) {
+            console.error("Error saving users to localStorage:", e);
+            alert("Không thể lưu thông tin tài khoản. Vui lòng kiểm tra lại.");
+        }
+    };
+
+    const registerUser = (username, email, password) => {
+        const users = getUsers();
+        if (users.some(user => user.email === email || user.username === username)) {
+            return { success: false, message: "Email hoặc tên người dùng đã tồn tại." };
+        }
+        users.push({ username, email, password });
+        saveUsers(users);
+        return { success: true, message: "Đăng ký thành công! Vui lòng đăng nhập." };
+    };
+
+    const validateUser = (identifier, password) => {
+        const users = getUsers();
+        const user = users.find(
+            user => (user.email === identifier || user.username === identifier) && user.password === password
+        );
+        return user ? { success: true, user } : { success: false, message: "Tên đăng nhập/email hoặc mật khẩu không đúng!" };
+    };
 
     // --- Utility Functions ---
     const formatCurrency = (number) => {
         if (isNaN(number)) return "0 VNĐ";
         try {
-            // Use 'vi-VN' for Vietnamese Dong formatting
-             return number.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            return number.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
         } catch (e) {
             console.error("Error formatting currency:", e);
-            return `${number} VNĐ`; // Fallback
+            return `${number} VNĐ`;
         }
     };
 
     const parsePrice = (priceString) => {
         if (typeof priceString !== 'string') return 0;
-        // Remove currency symbols, dots (thousands separators), and use comma as decimal if needed (though VND usually doesn't use decimals)
         const cleanedString = priceString.replace(/ VNĐ/g, '').replace(/\./g, '').replace(/₫/g, '').trim();
         return parseFloat(cleanedString) || 0;
     };
 
-    // --- Function to render product description (with expand/collapse for specific IDs) ---
-    // *** MOVED FUNCTION DEFINITION HERE - START ***
     const renderProductDescription = (container, descriptionHtml, productId) => {
         if (!container) return;
-        container.innerHTML = ''; // Clear existing content
-
-        // Apply expand/collapse ONLY for piano1
+        container.innerHTML = '';
         if (productId === 'piano1') {
             const contentDiv = document.createElement('div');
             contentDiv.classList.add('description-content', 'collapsed');
             contentDiv.innerHTML = descriptionHtml;
-
             const toggleButton = document.createElement('button');
             toggleButton.classList.add('description-toggle');
             toggleButton.textContent = 'Xem chi tiết';
             toggleButton.dataset.action = 'expand';
-
             container.appendChild(contentDiv);
             container.appendChild(toggleButton);
-
             toggleButton.addEventListener('click', () => {
                 const isCollapsed = contentDiv.classList.contains('collapsed');
-                if (isCollapsed) {
-                    contentDiv.classList.remove('collapsed');
-                    toggleButton.textContent = 'Thu gọn';
-                    toggleButton.dataset.action = 'collapse';
-                } else {
-                    contentDiv.classList.add('collapsed');
-                    toggleButton.textContent = 'Xem chi tiết';
-                    toggleButton.dataset.action = 'expand';
-                }
+                contentDiv.classList.toggle('collapsed', !isCollapsed);
+                toggleButton.textContent = isCollapsed ? 'Thu gọn' : 'Xem chi tiết';
+                toggleButton.dataset.action = isCollapsed ? 'collapse' : 'expand';
             });
         } else {
-            // For other products, just display the description directly
             container.innerHTML = descriptionHtml;
         }
     };
-    // *** MOVED FUNCTION DEFINITION HERE - END ***
-
 
     // --- Cart Functions ---
     const getCart = () => {
@@ -175,44 +105,40 @@ document.addEventListener('DOMContentLoaded', () => {
             return cartJson ? JSON.parse(cartJson) : [];
         } catch (e) {
             console.error("Error parsing cart JSON from localStorage:", e);
-            localStorage.removeItem('shoppingCart'); // Clear corrupted data
+            localStorage.removeItem('shoppingCart');
             return [];
         }
     };
 
     const saveCart = (cart) => {
         if (!Array.isArray(cart)) {
-             console.error("Attempted to save non-array as cart:", cart);
-             return;
+            console.error("Attempted to save non-array as cart:", cart);
+            return;
         }
         try {
             localStorage.setItem('shoppingCart', JSON.stringify(cart));
-            updateCartIcon(); // Update icon whenever cart is saved
+            updateCartIcon();
         } catch (e) {
             console.error("Error saving cart to localStorage:", e);
-            // Consider a more user-friendly error message if needed
-            // alert("Không thể lưu giỏ hàng. LocalStorage có thể bị đầy hoặc bị tắt.");
         }
     };
 
     const addItemToCart = (productToAdd) => {
-         if (!productToAdd || !productToAdd.id || !productToAdd.name || productToAdd.price == null || isNaN(productToAdd.price)) {
-             console.error("Invalid product data for adding to cart:", productToAdd);
-           alert("Lỗi: Không thể thêm sản phẩm không hợp lệ vào giỏ.");
-           return;
-       }
-
+        if (!productToAdd || !productToAdd.id || !productToAdd.name || productToAdd.price == null || isNaN(productToAdd.price)) {
+            console.error("Invalid product data for adding to cart:", productToAdd);
+            alert("Lỗi: Không thể thêm sản phẩm không hợp lệ vào giỏ.");
+            return;
+        }
         const cart = getCart();
         const existingItemIndex = cart.findIndex(item => item.id === productToAdd.id);
-        const quantityToAdd = Math.max(1, parseInt(productToAdd.quantity || 1, 10)); // Ensure quantity is at least 1 and an integer
-
+        const quantityToAdd = Math.max(1, parseInt(productToAdd.quantity || 1, 10));
         if (existingItemIndex > -1) {
-            cart[existingItemIndex].quantity = (cart[existingItemIndex].quantity || 0) + quantityToAdd; // Ensure existing quantity is a number
+            cart[existingItemIndex].quantity = (cart[existingItemIndex].quantity || 0) + quantityToAdd;
         } else {
             cart.push({
                 id: productToAdd.id,
                 name: productToAdd.name,
-                price: productToAdd.price, // Should be a number
+                price: productToAdd.price,
                 quantity: quantityToAdd,
                 image: productToAdd.image || 'https://via.placeholder.com/100x75/EEEEEE/FFFFFF?text=No+Image'
             });
@@ -225,13 +151,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const cart = getCart();
         const itemIndex = cart.findIndex(item => item.id === productId);
         const quantity = parseInt(newQuantity, 10);
-
         if (itemIndex > -1 && !isNaN(quantity) && quantity >= 1) {
             cart[itemIndex].quantity = quantity;
             saveCart(cart);
             return true;
         } else if (itemIndex > -1 && !isNaN(quantity) && quantity <= 0) {
-            return removeItemFromCart(productId); // Delegate removal
+            return removeItemFromCart(productId);
         }
         console.warn(`Failed to update quantity for product ${productId} to ${newQuantity}`);
         return false;
@@ -258,271 +183,160 @@ document.addEventListener('DOMContentLoaded', () => {
         return getCart().reduce((total, item) => total + ((item.price || 0) * (item.quantity || 0)), 0);
     };
 
-
-    // --- Update Cart Icon Function ---
     const updateCartIcon = () => {
-        const cartIconCountElement = document.getElementById('cart-item-count');
-        if (cartIconCountElement) {
+        if (cartIconCount) {
             const count = getCartItemCount();
-            cartIconCountElement.textContent = count;
-            cartIconCountElement.classList.toggle('hidden', count === 0);
+            cartIconCount.textContent = count;
+            cartIconCount.style.display = count === 0 ? 'none' : 'inline-block';
         }
     };
 
-
-    // --- Add to Cart Confirmation Message ---
     const showAddToCartConfirmation = (buttonElement) => {
-         if (!buttonElement) return;
-         let confirmationSpan = buttonElement.parentNode.querySelector('.add-to-cart-confirmation');
-
-         if (!confirmationSpan) {
-             confirmationSpan = document.createElement('span');
-             confirmationSpan.className = 'add-to-cart-confirmation';
-             confirmationSpan.textContent = 'Đã thêm!';
-             buttonElement.parentNode.insertBefore(confirmationSpan, buttonElement.nextSibling);
-         }
-         confirmationSpan.classList.remove('show'); // Reset animation
-         void confirmationSpan.offsetWidth; // Trigger reflow
-         confirmationSpan.classList.add('show');
-
-         if (confirmationSpan.hideTimeout) clearTimeout(confirmationSpan.hideTimeout);
-         confirmationSpan.hideTimeout = setTimeout(() => {
-             confirmationSpan.classList.remove('show');
-         }, 2000);
+        if (!buttonElement) return;
+        let confirmationSpan = buttonElement.parentNode.querySelector('.add-to-cart-confirmation');
+        if (!confirmationSpan) {
+            confirmationSpan = document.createElement('span');
+            confirmationSpan.className = 'add-to-cart-confirmation';
+            confirmationSpan.textContent = 'Đã thêm!';
+            buttonElement.parentNode.insertBefore(confirmationSpan, buttonElement.nextSibling);
+        }
+        confirmationSpan.classList.remove('show');
+        void confirmationSpan.offsetWidth;
+        confirmationSpan.classList.add('show');
+        if (confirmationSpan.hideTimeout) clearTimeout(confirmationSpan.hideTimeout);
+        confirmationSpan.hideTimeout = setTimeout(() => {
+            confirmationSpan.classList.remove('show');
+        }, 2000);
     };
 
-
-    // --- Function to Update Header UI based on Login State ---
+    // --- UI Update & Auth Logic ---
     const updateHeaderUI = () => {
         const loggedInUser = sessionStorage.getItem('loggedInUser');
-        const authButtons = document.querySelector('.auth-buttons');
-        const userInfo = document.querySelector('.user-info');
-        const userNameSpan = document.getElementById('user-display-name');
-
-        if (authButtons && userInfo && userNameSpan) {
-             if (loggedInUser) {
-                 authButtons.classList.add('hidden');
-                 userInfo.classList.remove('hidden');
-                 userNameSpan.textContent = loggedInUser;
-             } else {
-                 authButtons.classList.remove('hidden');
-                 userInfo.classList.add('hidden');
-                 userNameSpan.textContent = '';
-             }
+        if (authButtonsContainer && userInfoContainer && userDisplayNameSpan) {
+            if (loggedInUser) {
+                authButtonsContainer.classList.add('d-none');
+                authButtonsContainer.classList.remove('d-flex');
+                userInfoContainer.classList.remove('d-none');
+                userInfoContainer.classList.add('d-flex', 'align-items-center');
+                userDisplayNameSpan.textContent = `Xin chào, ${loggedInUser}!`;
+                if (logoutBtn) {
+                    logoutBtn.classList.remove('d-none');
+                    logoutBtn.style.display = 'inline-block';
+                }
+            } else {
+                authButtonsContainer.classList.remove('d-none');
+                authButtonsContainer.classList.add('d-flex');
+                userInfoContainer.classList.add('d-none');
+                userInfoContainer.classList.remove('d-flex');
+                userDisplayNameSpan.textContent = '';
+                if (logoutBtn) {
+                    logoutBtn.classList.add('d-none');
+                    logoutBtn.style.display = 'none';
+                }
+            }
+        } else {
+            console.warn("One or more header UI elements are missing:", {
+                authButtonsContainer,
+                userInfoContainer,
+                userDisplayNameSpan,
+                logoutBtn
+            });
         }
     };
 
-    // --- Function to Handle Successful Login ---
     const handleLoginSuccess = (userIdentifier) => {
         sessionStorage.setItem('loggedInUser', userIdentifier);
         updateHeaderUI();
-        closeModal(); // Close the auth modal
+        if (authModalInstance) authModalInstance.hide();
         if (authForm) authForm.reset();
         clearFormErrors(authForm);
-        if(loginFormErrorDiv) loginFormErrorDiv.style.display = 'none';
+        if (loginFormErrorDiv) loginFormErrorDiv.style.display = 'none';
         console.log(`User ${userIdentifier} logged in successfully.`);
+        window.location.reload();
     };
 
-     // --- Function to Handle Logout ---
     const handleLogout = () => {
         sessionStorage.removeItem('loggedInUser');
         updateHeaderUI();
         console.log("User logged out.");
+        window.location.reload();
     };
 
-    // --- Add Logout Event Listener ---
     if (logoutBtn) {
         logoutBtn.addEventListener('click', handleLogout);
+    } else {
+        console.warn("Logout button (#logout-btn) not found in the DOM.");
     }
 
-
-    // --- Mobile Menu Toggle ---
-    if (menuToggle && nav) {
-         menuToggle.addEventListener('click', () => {
-             nav.classList.toggle('active');
-             menuToggle.textContent = nav.classList.contains('active') ? '✕' : '☰';
-         });
-         document.addEventListener('click', (event) => {
-             if (nav && !nav.contains(event.target) && !menuToggle.contains(event.target) && nav.classList.contains('active')) {
-                 nav.classList.remove('active');
-                 menuToggle.textContent = '☰';
-              }
-         });
-    }
-
-
-    // --- Modal Opening/Closing and Scroll Lock Logic ---
-
-    // Function to open the Auth modal
-    const openModal = (initialTab) => {
-        if (!modal) return;
-        modal.style.display = 'flex';
-        document.body.classList.add('scroll-lock'); // Lock scroll when opening Auth modal
-        switchTab(initialTab); // Set the correct tab
-        clearFormErrors(authForm); // Clear previous errors
-        if(loginFormErrorDiv) loginFormErrorDiv.style.display = 'none'; // Hide general login error
-    };
-
-    // Function to close the Auth modal
-    const closeModal = () => {
-        if (!modal || modal.style.display === 'none') return;
-        modal.style.display = 'none';
-        // Restore scroll ONLY if the Welcome modal is ALSO closed
-        const welcomeModalCheck = document.getElementById('welcome-notification');
-        if (!welcomeModalCheck || welcomeModalCheck.style.display === 'none' || welcomeModalCheck.style.display === '') {
-             document.body.classList.remove('scroll-lock'); // Restore scroll
+    // --- Modal Handling ---
+    const openModal = (tab) => {
+        if (authModalInstance) {
+            const tabButton = authModalEl.querySelector(`[data-tab="${tab}"]`);
+            if (tabButton) tabButton.click();
+            authModalInstance.show();
+            clearFormErrors(authForm);
+            if (loginFormErrorDiv) loginFormErrorDiv.style.display = 'none';
         }
     };
 
-    // Function to close the Welcome modal
-    const closeWelcomeModal = () => {
-        if (welcomeModal) {
-            welcomeModal.style.display = 'none';
-            // Restore scroll ONLY if the Auth modal is ALSO closed
-            const authModalCheck = document.getElementById('auth-modal');
-            if (!authModalCheck || authModalCheck.style.display === 'none' || authModalCheck.style.display === '') {
-                document.body.classList.remove('scroll-lock'); // Restore scroll
-            }
-        }
-    };
+    if (loginBtn) loginBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal('login');
+    });
 
-    // Function to switch tabs within the Auth modal
-    const switchTab = (tabName) => {
-        if (!modal) return;
-        authTabs.forEach(tab => {
-            tab.classList.toggle('active', tab.dataset.tab === tabName);
-        });
-        formContents.forEach(content => {
-            content.classList.toggle('hidden', content.id !== `${tabName}-content`);
-        });
-        clearFormErrors(authForm); // Reset errors when switching tabs
-        if(loginFormErrorDiv) loginFormErrorDiv.style.display = 'none'; // Hide general login error
-    };
+    if (registerBtn) registerBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal('register');
+    });
 
-    // --- Event Listeners for Modals ---
+    switchToRegisterLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const registerTab = authModalEl.querySelector('[data-tab="register"]');
+            if (registerTab) registerTab.click();
+        });
+    });
 
-    // Auth Modal Triggers
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => openModal('login'));
-    }
-    if (registerBtn) {
-        registerBtn.addEventListener('click', () => openModal('register'));
-    }
+    switchToLoginLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const loginTab = authModalEl.querySelector('[data-tab="login"]');
+            if (loginTab) loginTab.click();
+        });
+    });
 
-    // Auth Modal Closing (X button and background click)
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', closeModal);
-    }
-    if (modal) {
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) { // Click on background/overlay
-                closeModal();
-            }
+    // --- Welcome Modal ---
+    let welcomeModalInstance;
+    let showWelcomeTimeout;
+    const welcomeModalEl = document.getElementById('welcome-notification-bootstrap');
+    if (welcomeModalEl) {
+        welcomeModalInstance = new bootstrap.Modal(welcomeModalEl);
+        welcomeModalEl.addEventListener('hidden.bs.modal', () => {
+            if (showWelcomeTimeout) clearTimeout(showWelcomeTimeout);
         });
-        // Tab Switching Links
-        authTabs.forEach(tab => {
-            tab.addEventListener('click', () => switchTab(tab.dataset.tab));
-        });
-        switchToRegisterLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                switchTab('register');
-            });
-        });
-         switchToLoginLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                switchTab('login');
-            });
-        });
-    }
-
-    // Welcome Modal Trigger (Timeout) and Closing
-    if (welcomeModal && welcomeCloseBtn) {
-        const showWelcomeTimeout = setTimeout(() => {
-            if(welcomeModal) { // Check again if modal exists
-                welcomeModal.style.display = 'flex';
-                document.body.classList.add('scroll-lock'); // Lock scroll when opening Welcome modal
-            }
+        showWelcomeTimeout = setTimeout(() => {
+            if (welcomeModalInstance) welcomeModalInstance.show();
         }, 3000);
-
-        welcomeCloseBtn.addEventListener('click', () => {
-            closeWelcomeModal();
-            clearTimeout(showWelcomeTimeout); // Clear timeout if closed early
-        });
-        welcomeModal.addEventListener('click', (event) => {
-            if (event.target === welcomeModal) { // Click on background/overlay
-                closeWelcomeModal();
-                 clearTimeout(showWelcomeTimeout);
-            }
-        });
     }
-
 
     // --- Form Validation & Submission ---
-    if (authForm) {
-        authForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-             if(loginFormErrorDiv) loginFormErrorDiv.style.display = 'none';
-
-            if (validateForm()) { // validateForm handles field-specific errors
-                const activeTab = modal.querySelector('.tab-button.active')?.dataset.tab;
-
-                if (activeTab === 'login') {
-                    const usernameOrEmailInput = authForm.querySelector('#login-content #login-username');
-                    const passwordInput = authForm.querySelector('#login-content #login-password');
-                    const enteredIdentifier = usernameOrEmailInput?.value.trim();
-                    const enteredPassword = passwordInput?.value.trim();
-
-                    if (!enteredIdentifier || !enteredPassword) return; // Basic check
-
-                    // --- Login Logic ---
-                    if (enteredIdentifier === defaultUser.email && enteredPassword === defaultUser.password) {
-                         handleLoginSuccess(enteredIdentifier);
-                    } else {
-                        console.log('Invalid login credentials.');
-                        if(loginFormErrorDiv) {
-                            loginFormErrorDiv.textContent = 'Email hoặc mật khẩu không chính xác.';
-                             loginFormErrorDiv.style.display = 'block';
-                        }
-                        if (passwordInput) { passwordInput.value = ''; passwordInput.focus(); }
-                    }
-                } else if (activeTab === 'register') {
-                    // --- Registration Logic (Simulation) ---
-                    console.log('Registration form is valid. Simulating registration...');
-                    alert('Đăng ký thành công! (Đây là bản demo - bạn có thể đăng nhập bằng tài khoản mặc định)');
-                    switchTab('login');
-                    if (authForm) authForm.reset();
-                    clearFormErrors(authForm);
-                }
-            } else {
-                console.log('Form validation failed.');
-                // Field-specific errors already shown by validateForm
-            }
-        });
-    }
-
-    // --- Validation Helper Functions ---
-    const showError = (inputElement, message) => {
-        if (!inputElement) return;
-        const formGroup = inputElement.closest('.form-group');
-        const errorElement = formGroup?.querySelector('.error-message');
-        if (errorElement) errorElement.textContent = message;
-        inputElement.classList.add('error');
+    const showError = (input, message) => {
+        const formGroup = input.closest('.form-group');
+        const errorDiv = formGroup ? formGroup.querySelector('.error-message') : null;
+        if (errorDiv) errorDiv.textContent = message;
+        input.classList.add('is-invalid');
     };
 
-    const clearError = (inputElement) => {
-         if (!inputElement) return;
-         const formGroup = inputElement.closest('.form-group');
-         const errorElement = formGroup?.querySelector('.error-message');
-         if (errorElement) errorElement.textContent = '';
-         inputElement.classList.remove('error');
+    const clearError = (input) => {
+        const formGroup = input.closest('.form-group');
+        const errorDiv = formGroup ? formGroup.querySelector('.error-message') : null;
+        if (errorDiv) errorDiv.textContent = '';
+        input.classList.remove('is-invalid');
     };
 
     const clearFormErrors = (form) => {
         if (!form) return;
-        form.querySelectorAll('input.error').forEach(input => clearError(input));
-        // Clear general form error
+        form.querySelectorAll('input.is-invalid').forEach(input => clearError(input));
         const generalError = form.querySelector('.form-error-message');
         if (generalError) {
             generalError.textContent = '';
@@ -530,373 +344,205 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const validateRequired = (inputElement) => {
-        if (!inputElement) return false;
-        if (inputElement.value.trim() === '') {
-            showError(inputElement, 'Trường này là bắt buộc.');
+    const validateRequired = (input) => {
+        if (!input.value.trim()) {
+            showError(input, 'Trường này là bắt buộc.');
             return false;
         }
-        clearError(inputElement);
+        clearError(input);
         return true;
     };
 
-    const validateEmailFormat = (emailElement) => {
-        if (!emailElement) return false;
+    const validateEmailFormat = (input) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailElement.value.trim())) {
-            showError(emailElement, 'Vui lòng nhập địa chỉ email hợp lệ.');
+        if (!emailRegex.test(input.value.trim())) {
+            showError(input, 'Vui lòng nhập địa chỉ email hợp lệ.');
             return false;
         }
-        clearError(emailElement);
+        clearError(input);
         return true;
     };
 
-     const validateMinLength = (inputElement, minLength) => {
-        if (!inputElement) return false;
-        if (inputElement.value.trim().length < minLength) {
-            showError(inputElement, `Mật khẩu phải có ít nhất ${minLength} ký tự.`);
+    const validateMinLength = (input, minLength) => {
+        if (input.value.trim().length < minLength) {
+            showError(input, `Mật khẩu phải có ít nhất ${minLength} ký tự.`);
             return false;
         }
-        clearError(inputElement);
+        clearError(input);
         return true;
     };
 
-    const validatePasswordMatch = (passwordElement, confirmPasswordElement) => {
-        if (!passwordElement || !confirmPasswordElement) return false;
-        if (passwordElement.value.trim() !== confirmPasswordElement.value.trim()) {
-            showError(confirmPasswordElement, 'Mật khẩu xác nhận không khớp.');
+    const validatePasswordMatch = (password, confirmPassword) => {
+        if (password.value.trim() !== confirmPassword.value.trim()) {
+            showError(confirmPassword, 'Mật khẩu xác nhận không khớp.');
             return false;
         }
-        clearError(confirmPasswordElement);
+        clearError(confirmPassword);
         return true;
     };
 
-    // --- Main Form Validation Function ---
+    const validateNameCapitalization = (input) => {
+        const name = input.value.trim();
+        // Check if each word starts with an uppercase letter followed by lowercase letters
+        const nameRegex = /^(?:[A-Z][a-z]*(?:\s[A-Z][a-z]*)*)$/;
+        if (!nameRegex.test(name)) {
+            showError(input, 'Họ tên phải viết hoa chữ cái đầu mỗi từ (VD: Nguyen Van Anh).');
+            return false;
+        }
+        clearError(input);
+        return true;
+    };
+
     const validateForm = () => {
-        if (!authForm || !modal) return false;
+        if (!authForm || !authModalEl) return false;
         clearFormErrors(authForm);
         let isValid = true;
-        const activeTab = modal.querySelector('.tab-button.active')?.dataset.tab;
-
-        if (!activeTab) return false;
+        const activeTab = authModalEl.querySelector('.tab-button.active')?.dataset.tab;
 
         if (activeTab === 'register') {
-            const username = authForm.querySelector('#register-content #register-username');
-            const email = authForm.querySelector('#register-content #register-email');
-            const password = authForm.querySelector('#register-content #register-password');
-            const confirmPassword = authForm.querySelector('#register-content #register-confirm-password');
+            const usernameInput = authForm.querySelector('#register-username, #register-username-detail');
+            const emailInput = authForm.querySelector('#register-email, #register-email-detail');
+            const passwordInput = authForm.querySelector('#register-password, #register-password-detail');
+            const confirmPasswordInput = authForm.querySelector('#register-confirm-password, #register-confirm-password-detail');
 
-            if (!validateRequired(username)) isValid = false;
-            if (!validateRequired(email) || !validateEmailFormat(email)) isValid = false;
-            if (!validateRequired(password) || !validateMinLength(password, 6)) isValid = false;
-            if (!validateRequired(confirmPassword) || (password?.value.trim() !== '' && !validatePasswordMatch(password, confirmPassword))) isValid = false;
-
+            if (!validateRequired(usernameInput) || !validateNameCapitalization(usernameInput)) isValid = false;
+            if (!validateRequired(emailInput) || !validateEmailFormat(emailInput)) isValid = false;
+            if (!validateRequired(passwordInput) || !validateMinLength(passwordInput, 6)) isValid = false;
+            if (!validateRequired(confirmPasswordInput) || !validatePasswordMatch(passwordInput, confirmPasswordInput)) isValid = false;
         } else if (activeTab === 'login') {
-            const usernameOrEmailInput = authForm.querySelector('#login-content #login-username');
-            const passwordInput = authForm.querySelector('#login-content #login-password');
+            const usernameInput = authForm.querySelector('#login-username, #login-username-detail');
+            const passwordInput = authForm.querySelector('#login-password, #login-password-detail');
 
-            if (!validateRequired(usernameOrEmailInput)) {
-                isValid = false;
-            } else {
-                const loginValue = usernameOrEmailInput.value.trim();
-                if (loginValue.includes('@') && !validateEmailFormat(usernameOrEmailInput)) {
-                   isValid = false;
-                }
-            }
-            if (!validateRequired(passwordInput)) {
-                isValid = false;
-            }
+            if (!validateRequired(usernameInput)) isValid = false;
+            if (!validateRequired(passwordInput)) isValid = false;
         }
         return isValid;
     };
 
+    if (authForm) {
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (loginFormErrorDiv) loginFormErrorDiv.style.display = 'none';
+            if (!validateForm()) return;
 
-    // --- PRODUCT DETAIL PAGE LOGIC ---
+            const activeTab = authModalEl.querySelector('.tab-button.active')?.dataset.tab;
+            if (activeTab === 'login') {
+                const usernameInput = authForm.querySelector('#login-username, #login-username-detail');
+                const passwordInput = authForm.querySelector('#login-password, #login-password-detail');
+                const identifier = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+
+                const loginResult = validateUser(identifier, password);
+                if (loginResult.success) {
+                    handleLoginSuccess(identifier);
+                } else {
+                    if (loginFormErrorDiv) {
+                        loginFormErrorDiv.textContent = loginResult.message;
+                        loginFormErrorDiv.style.display = 'block';
+                    }
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+            } else if (activeTab === 'register') {
+                const usernameInput = authForm.querySelector('#register-username, #register-username-detail');
+                const emailInput = authForm.querySelector('#register-email, #register-email-detail');
+                const passwordInput = authForm.querySelector('#register-password, #register-password-detail');
+
+                const username = usernameInput.value.trim();
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+
+                const registerResult = registerUser(username, email, password);
+                if (registerResult.success) {
+                    alert(registerResult.message);
+                    const loginTab = authModalEl.querySelector('[data-tab="login"]');
+                    if (loginTab) loginTab.click();
+                    authForm.reset();
+                    clearFormErrors(authForm);
+                } else {
+                    if (loginFormErrorDiv) {
+                        loginFormErrorDiv.textContent = registerResult.message;
+                        loginFormErrorDiv.style.display = 'block';
+                    }
+                }
+            }
+        });
+    }
+
+    // --- Product Data ---
+    const allProductData = {
+        guitar1: { name: "Guitar Acoustic ABC", price: 5500000, image: "../img/gt1.jpg", category: "guitar", imageGallery: ["../img/gt1.jpg", "../img/gt2.jpg", "../img/gt3.jpg"], description: "<p>Mô tả chi tiết cho Guitar Acoustic ABC... làm từ gỗ thông, âm thanh vang sáng.</p>" },
+        guitar2: { name: "Đàn Guitar Điện Donner DST-550, Black", price: 8200000, image: "../img/gtd1.jpg", category: "guitar", imageGallery: ["../img/gtd1.jpg", "../img/gtd2.jpg", "../img/gtd3.jpg"], description: "<p>Mô tả chi tiết cho Guitar Điện XYZ... pickup humbucker, phù hợp rock.</p>" },
+        guitar_donner_dst550: { name: "Đàn Guitar Classic Cordoba C1M 1/4", price: 5200000, image: "../img/gtl1.jpg", category: "guitar", imageGallery: ["../img/gtl1.jpg", "../img/gtl2.jpg", "../img/gtl3.jpg", "../img/gtl4.jpg"], description: "<p>Guitar Classic Cordoba C1M 1/4...</p>" },
+        piano1: { name: "Piano Đứng Yamaha U1", price: 85000000, image: "../img/yamaha1.jpg", category: "piano", imageGallery: ["../img/yamaha1.jpg", "../img/yamaha2.jpg", "../img/yamaha3.jpg"], description: "<p><strong>Đàn Piano Yamaha U1</strong>...</p>" },
+        piano2: { name: "Piano Điện Casio PX-S1100", price: 18900000, image: "../img/pn1.jpg", category: "piano", imageGallery: ["../img/pn1.jpg", "../img/pn2.jpg", "../img/pn3.jpg", "../img/pn4.jpg"], description: "<p>Mô tả chi tiết cho Piano Điện Casio PX-S1100...</p>" },
+        piano3: { name: "Grand Piano Kawai GL-10", price: 350000000, image: "../img/pn5.jpg", category: "piano", imageGallery: ["../img/pn5.jpg", "../img/pn6.jpg", "../img/pn7.jpg", "../img/pn8.jpg"], description: "<p>Mô tả chi tiết cho Grand Piano Kawai GL-10...</p>" },
+        drum1: { name: "Bộ Trống Jazz Pearl Roadshow", price: 15600000, image: "../img/dr1.jpg", category: "drums", imageGallery: ["../img/dr1.jpg", "../img/dr2.jpg", "../img/dr3.jpg", "../img/dr4.jpg"], description: "<p>Mô tả chi tiết cho Bộ Trống Jazz Pearl Roadshow...</p>" },
+        drum2: { name: "Bộ Trống Điện Roland TD-1DMK", price: 22500000, image: "../img/dr5.jpg", category: "drums", imageGallery: ["../img/dr5.jpg", "../img/dr6.jpg", "../img/dr7.jpg", "../img/dr8.jpg"], description: "<p>Mô tả chi tiết cho Trống Điện Roland TD-1DMK...</p>" },
+        drum3: { name: "Trống Cajon Meinl", price: 3100000, image: "../img/dr10.jpg", category: "drums", imageGallery: ["../img/dr10.jpg"], description: "<p>Mô tả chi tiết cho Trống Cajon Meinl...</p>" },
+        violin1: { name: "Violin Acoustic Size 4/4", price: 4200000, image: "../img/vi1.jpg", category: "violin", imageGallery: ["../img/vi1.jpg", "../img/vi2.jpg", "../img/vi3.jpg", "../img/vi4.jpg"], description: "<p>Mô tả chi tiết cho Violin Acoustic Size 4/4...</p>" },
+        violin2: { name: "Violin Điện Yamaha YEV104", price: 19800000, image: "../img/vi11.jpg", category: "violin", imageGallery: ["../img/vi11.jpg"], description: "<p>Mô tả chi tiết cho Violin Điện Yamaha YEV104...</p>" },
+        violin3: { name: "Violin Size 1/2 Cho Bé", price: 2900000, image: "../img/vi21.jpg", category: "violin", imageGallery: ["../img/vi21.jpg"], description: "<p>Mô tả chi tiết cho Violin Size 1/2 Cho Bé...</p>" }
+    };
+
+    // --- Product Detail Page Logic ---
     if (window.location.pathname.includes('product-detail.html')) {
         const addToCartButton = document.querySelector('.add-to-cart-btn');
         const mainProductImageEl = document.getElementById('main-product-image');
         const productNameEl = document.getElementById('product-name');
         const productPriceEl = document.getElementById('product-price');
         const productDescContainerEl = document.getElementById('product-description');
-        const thumbnailContainer = document.querySelector('.thumbnail-images'); // <-- Lấy container của thumbnail
+        const thumbnailContainer = document.querySelector('.thumbnail-images');
         const urlParamsDetail = new URLSearchParams(window.location.search);
         const productIdDetail = urlParamsDetail.get('id');
-
-        // ... (productData definition as updated above) ...
-        // --- Product Data Simulation & Loading ---
-        const productData = {
-            // --- GUITARS ---
-            guitar1: {
-                name: "Guitar Acoustic ABC",
-                price: 5500000,
-                imageGallery: [ // <-- Sử dụng mảng cho thư viện ảnh
-                    "../img/gt1.jpg", // Ảnh chính mặc định
-                    "../img/gt1.jpg",
-                    "../img/gt2.jpg",
-                    "../img/gt3.jpg"
-                ],
-                description: "<p>Mô tả chi tiết cho Guitar Acoustic ABC... làm từ gỗ thông, âm thanh vang sáng.</p>",
-                details: { // <-- Bổ sung details
-                    "Loại đàn": "Acoustic",
-                    "Mặt đàn (Top)": "Gỗ Thông Sitka (Sitka Spruce)",
-                    "Lưng và Hông (Back & Sides)": "Gỗ Gụ (Mahogany)",
-                    "Cần đàn (Neck)": "Gỗ Gụ (Mahogany)",
-                    "Dáng đàn": "Dáng D (Dreadnought)",
-                    "Màu sắc": "Tự nhiên (Natural)",
-                    "Phụ kiện đi kèm": "Bao đàn, pick gảy"
-                }
-            },
-            guitar2: {
-                name: "Đàn Guitar Điện Donner DST-550, Black",
-                price: 8200000,
-                imageGallery: [ // <-- Sử dụng mảng cho thư viện ảnh
-                    "../img/gtd1.jpg", // Ảnh chính mặc định
-                    "../img/gtd1.jpg",
-                    "../img/gtd2.jpg",
-                    "../img/gtd3.jpg"
-                ],
-                description: "<p>Mô tả chi tiết cho Guitar Điện XYZ... pickup humbucker, phù hợp rock.</p>",
-                details: { // <-- Bổ sung details
-                   "Loại đàn": "Electric",
-                   "Thân đàn (Body)": "Gỗ Đoạn (Basswood)",
-                   "Cần đàn (Neck)": "Gỗ Phong (Maple)",
-                   "Mặt phím (Fretboard)": "Gỗ Phong (Maple)",
-                   "Kiểu dáng": "Stratocaster",
-                   "Pickups": "HSS (1 Humbucker, 2 Single-Coil)",
-                   "Ngựa đàn (Bridge)": "Tremolo tiêu chuẩn",
-                   "Màu sắc": "Đen (Black)"
-                }
-            },
-            guitar_donner_dst550: {
-                name: "Đàn Guitar Classic Cordoba C1M 1/4",
-                price: 5200000,
-                imageGallery: [ // <-- Sử dụng mảng cho thư viện ảnh
-                    "../img/gtl1.jpg", // Ảnh chính mặc định
-                    "../img/gtl2.jpg",
-                    "../img/gtl3.jpg",
-                    "../img/gtl4.jpg"
-                ],
-                description: "<p>Guitar điện Donner DST-550 mang kiểu dáng Stratocaster cổ điển, màu đen bóng mạnh mẽ. Phù hợp cho người mới bắt đầu và chơi các thể loại như pop, rock, blues. Cần đàn C-shape tạo cảm giác chơi thoải mái, cấu hình pickup HSS (Humbucker - Single Coil - Single Coil) linh hoạt cho nhiều chất âm khác nhau.</p>",
-                details: { // <-- Bổ sung details
-                   "Thương hiệu": "Donner",
-                   "Model": "DST-550",
-                   "Loại đàn": "Electric",
-                   "Kiểu dáng": "Stratocaster",
-                   "Màu sắc": "Đen (Black)",
-                   "Cấu hình Pickup": "HSS (1 Humbucker Alnico V, 2 Single-Coil Alnico V)",
-                   "Cần đàn": "Gỗ Phong (Maple), Dáng C",
-                   "Mặt phím": "Gỗ Purpleheart",
-                   "Số phím": "22",
-                   "Phụ kiện": "Bao đàn, dây đeo, cáp nối, pick, tuner"
-                }
-            },
-            // --- PIANOS ---
-            piano1: {
-                name: "Piano Đứng Yamaha U1",
-                price: 85000000,
-                imageGallery: [ // <-- Sử dụng mảng cho thư viện ảnh
-                    "../img/yamaha1.jpg", // Ảnh chính mặc định
-                    "../img/yamaha1.jpg",
-                    "../img/yamaha2.jpg",
-                    "../img/yamaha3.jpg"
-                ],
-                description: `<p><strong>Đàn Piano Yamaha U1</strong></p><p>Piano Yamaha U1 ngay từ khi mới ra đời cho đến nay loại đàn này luôn nhận được sự ưu ái của các nhạc sỹ và nghệ sỹ đàn dương cầm chuyên nghiệp bởi kết hợp hài hòa giữa cổ điển và hiện đại...</p>`, // (Giữ nguyên mô tả dài)
-                details: { // <-- Bổ sung details
-                   "Thương hiệu": "Yamaha",
-                   "Model": "U1",
-                   "Loại đàn": "Piano Cơ Đứng (Upright Acoustic)",
-                   "Số phím": "88",
-                   "Số pedal": "3",
-                   "Chiều cao": "121 cm",
-                   "Chiều rộng": "153 cm",
-                   "Chiều sâu": "61 cm",
-                   "Trọng lượng": "228 kg",
-                   "Hoàn thiện": "Sơn bóng (Polished Ebony)",
-                   "Xuất xứ": "Nhật Bản"
-                }
-            },
-            piano2: {
-                name: "Piano Điện Casio PX-S1100",
-                price: 18900000,
-                imageGallery: [ 
-                    "../img/pn1.jpg", // Ảnh chính mặc định
-                    "../img/pn2.jpg",
-                    "../img/pn3.jpg",
-                    "../img/pn4.jpg"
-                ],
-                description: "<p>Mô tả chi tiết cho Piano Điện Casio PX-S1100... Thiết kế gọn nhẹ, nhiều tính năng.</p>",
-                 details: { // <-- Bổ sung details
-                   "Thương hiệu": "Casio",
-                   "Model": "PX-S1100",
-                   "Loại đàn": "Piano Điện (Digital Piano)",
-                   "Số phím": "88 phím (Smart Scaled Hammer Action Keyboard)",
-                   "Phản hồi cảm ứng": "5 mức độ nhạy",
-                   "Polyphony tối đa": "192",
-                   "Số âm sắc (Tones)": "18",
-                   "Kết nối": "Bluetooth Audio & MIDI, USB",
-                   "Loa": "8W + 8W",
-                   "Màu sắc": "Đen/Trắng/Đỏ (Tùy chọn)",
-                   "Phụ kiện": "Pedal SP-3, Adapter nguồn"
-                }
-            },
-            piano3: {
-                name: "Piano Điện Roland FP-30X",
-                price: 19500000,
-                imageGallery: [ // <-- Sử dụng mảng cho thư viện ảnh
-                    "../img/pn5.jpg", // Ảnh chính mặc định
-                    "../img/pn6.jpg",
-                    "../img/pn7.jpg",
-                    "../img/pn8.jpg"
-                ],
-                description: "<p>Mô tả chi tiết cho Piano Điện Roland FP-30X... Âm thanh tuyệt vời, kết nối Bluetooth.</p>",
-                details: { // <-- Bổ sung details
-                     "Thương hiệu": "Roland",
-                        "Model": "FP-30X",
-                        "Loại đàn": "Piano Điện (Digital Piano)",
-                        "Số phím": "88 phím (PHA-4 Standard Keyboard)",
-                        "Phản hồi cảm ứng": "3 mức độ nhạy",
-                        "Polyphony tối đa": "128",
-                        "Số âm sắc (Tones)": "35",
-                        "Kết nối": "Bluetooth Audio & MIDI, USB",
-                        "Loa": "2 x 11W",
-                        "Màu sắc": "Đen/Trắng (Tùy chọn)",
-                        "Phụ kiện": "Pedal DP-10, Adapter nguồn, Hướng dẫn sử dụng"
-                }
-             }     ,      // --- DRUMS ---
-            drum1: {
-                name: "Bộ Trống Jazz Pearl Roadshow",
-                price: 15600000,
-                imageGallery: [ // <-- Sử dụng mảng cho thư viện ảnh
-                    "../img/dr1.jpg", // Ảnh chính mặc định
-                    "../img/dr2.jpg",
-                    "../img/dr3.jpg",
-                    "../img/dr4.jpg"
-                ],
-                description: "<p>Mô tả chi tiết cho Bộ Trống Jazz Pearl Roadshow... Bộ trống hoàn chỉnh cho người mới bắt đầu.</p>",
-                details: { // <-- Bổ sung details
-                   "Thương hiệu": "Pearl",
-                   "Dòng": "Roadshow",
-                   "Cấu hình": "Jazz/Fusion (Thường gồm Bass 18\" hoặc 20\")",
-                   "Chất liệu vỏ trống": "Gỗ Dương (Poplar) 9 lớp",
-                   "Bao gồm": "Trống Bass, Snare, Tom 1, Tom 2, Floor Tom, Hi-hat Stand, Cymbal Stand, Snare Stand, Pedal Bass, Ghế trống, Cymbal (thường là Hi-hat 14\", Crash/Ride 16\")",
-                   "Màu sắc": "Nhiều màu (Jet Black, Wine Red, Bronze Metallic, ...)"
-                }
-            },
-            //Trống Điện Aroma TDX-15
-            drum2: {
-                name: "Trống Điện Aroma TDX-15",
-                price: 8500000,
-                imageGallery: [ // <-- Sử dụng mảng cho thư viện ảnh
-                    "../img/dr5.jpg", // Ảnh chính mặc định
-                    "../img/dr6.jpg",
-                    "../img/dr7.jpg",
-                    "../img/dr8.jpg"
-                ],
-                description: "<p>Mô tả chi tiết cho Trống Điện Aroma TDX-15... Âm thanh sống động, nhiều chế độ.</p>",
-                details: { // <-- Bổ sung details
-                     "Thương hiệu": "Aroma",
-                        "Model": "TDX-15",
-                        "Loại đàn": "Trống Điện (Electronic Drum)",
-                        "Số trống": "5 trống + 3 cymbals",
-                        "Chất liệu đầu trống": "Silicone",
-                        "Kết nối": "USB MIDI, AUX IN/OUT, headphone jack",
-                        "Chế độ âm thanh": "20 âm thanh trống khác nhau",
-                        "Phụ kiện": "Adapter nguồn, tai nghe, ghế trống"
-                }
-            },
-            violin1: {
-                name: "Violin Acoustic Size 4/4",
-                price: 4200000,
-                imageGallery: [ // <-- Sử dụng mảng cho thư viện ảnh
-                    "../img/vi1.jpg", // Ảnh chính mặc định
-                    "../img/vi2.jpg",
-                    "../img/vi3.jpg",
-                    "../img/vi4.jpg"
-                ],
-                description: "<p>Mô tả chi tiết cho Violin Acoustic Size 4/4... Phù hợp cho người lớn và học sinh.</p>",
-                details: { // <-- Bổ sung details
-                   "Loại đàn": "Violin Acoustic",
-                   "Kích thước": "4/4 (Full size)",
-                   "Đối tượng": "Người lớn, học sinh từ 12 tuổi",
-                   "Mặt đàn": "Gỗ Thông (Spruce)",
-                   "Lưng và hông": "Gỗ Phong (Maple)",
-                   "Cần và cuộn xoắn": "Gỗ Phong (Maple)",
-                   "Mặt phím": "Gỗ mun hóa (Ebonized Wood) hoặc Gỗ mun (Ebony)",
-                   "Phụ kiện": "Vĩ (Bow), Hộp đàn (Case), Nhựa thông (Rosin)"
-                }
-            },
-         };
-        const product = productData[productIdDetail];
+        const product = allProductData[productIdDetail];
         const detailContainer = document.querySelector('.product-detail-container');
 
-        if (product && detailContainer && mainProductImageEl && thumbnailContainer) { // <-- Thêm kiểm tra thumbnailContainer
+        if (product && detailContainer && mainProductImageEl && thumbnailContainer) {
             const pageTitle = document.querySelector('title');
-
             if (productNameEl) productNameEl.textContent = product.name;
             if (productPriceEl && !isNaN(product.price)) {
                 productPriceEl.textContent = formatCurrency(product.price);
             } else if (productPriceEl) {
-                 productPriceEl.textContent = "Liên hệ";
+                productPriceEl.textContent = "Liên hệ";
             }
             if (pageTitle) pageTitle.textContent = `${product.name} - Nhạc Cụ Store`;
 
-            // --- Xử lý thư viện ảnh ---
-            thumbnailContainer.innerHTML = ''; // Xóa thumbnail cũ (nếu có trong HTML)
-
+            thumbnailContainer.innerHTML = '';
             if (product.imageGallery && product.imageGallery.length > 0) {
-                // 1. Đặt ảnh chính mặc định
-                mainProductImageEl.src = product.imageGallery[0]; // Lấy ảnh đầu tiên làm ảnh chính
-                mainProductImageEl.alt = product.name; // Đặt alt cho ảnh chính
-
-                // 2. Tạo các ảnh thumbnail động
+                mainProductImageEl.src = product.imageGallery[0];
+                mainProductImageEl.alt = product.name;
                 product.imageGallery.forEach((imgUrl, index) => {
                     const thumb = document.createElement('img');
-                    // Bạn có thể tùy chỉnh URL thumbnail ở đây nếu có phiên bản nhỏ hơn
-                    // Ví dụ: thumb.src = imgUrl.replace('/600x400/', '/100x75/');
-                    // Hiện tại, dùng luôn URL gốc cho thumbnail:
                     thumb.src = imgUrl;
                     thumb.alt = `${product.name} - Ảnh chi tiết ${index + 1}`;
                     thumb.classList.add('thumbnail');
-                    if (index === 0) {
-                        thumb.classList.add('active'); // Đánh dấu thumbnail đầu tiên là active
-                    }
-
-                    // 3. Gắn sự kiện click cho từng thumbnail
+                    if (index === 0) thumb.classList.add('active');
                     thumb.addEventListener('click', () => {
-                        mainProductImageEl.src = imgUrl; // Thay đổi ảnh chính khi click thumbnail
-                        mainProductImageEl.alt = thumb.alt; // Cập nhật alt ảnh chính
-
-                        // Bỏ active tất cả thumbnail khác
+                        mainProductImageEl.src = imgUrl;
+                        mainProductImageEl.alt = thumb.alt;
                         thumbnailContainer.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-                        // Thêm active cho thumbnail được click
                         thumb.classList.add('active');
                     });
-
-                    thumbnailContainer.appendChild(thumb); // Thêm thumbnail vào container
+                    thumbnailContainer.appendChild(thumb);
                 });
-
             } else {
-                // Trường hợp không có ảnh trong imageGallery
                 mainProductImageEl.src = 'https://via.placeholder.com/600x400/EEEEEE/FFFFFF?text=No+Image+Available';
                 mainProductImageEl.alt = product.name;
                 thumbnailContainer.innerHTML = '<p style="font-size: 0.8em; color: #666;">Không có ảnh chi tiết.</p>';
             }
-             // --- Kết thúc xử lý thư viện ảnh ---
-
 
             if (productDescContainerEl) {
-                 renderProductDescription(productDescContainerEl, product.description || "<p>Không có mô tả.</p>", productIdDetail);
+                renderProductDescription(productDescContainerEl, product.description || "<p>Không có mô tả.</p>", productIdDetail);
             }
 
-            // Add to Cart Button Listener
             if (addToCartButton && !isNaN(product.price)) {
                 addToCartButton.addEventListener('click', () => {
                     const productToAdd = {
                         id: productIdDetail,
                         name: product.name,
                         price: product.price,
-                        // Lấy ảnh đầu tiên làm ảnh đại diện cho giỏ hàng
-                        image: (product.imageGallery && product.imageGallery.length > 0) ? product.imageGallery[0] : 'https://via.placeholder.com/100x75',
+                        image: product.imageGallery && product.imageGallery.length > 0 ? product.imageGallery[0] : 'https://via.placeholder.com/100x75',
                         quantity: 1
                     };
                     addItemToCart(productToAdd);
@@ -906,20 +552,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 addToCartButton.disabled = true;
                 addToCartButton.textContent = "Hết hàng/Liên hệ";
             }
-
         } else if (detailContainer) {
-             detailContainer.innerHTML = '<p>Sản phẩm không tồn tại hoặc đã bị xóa.</p>';
-             if (!mainProductImageEl) console.error("Không tìm thấy phần tử #main-product-image");
-             if (!thumbnailContainer) console.error("Không tìm thấy phần tử .thumbnail-images");
+            detailContainer.innerHTML = '<p>Sản phẩm không tồn tại hoặc đã bị xóa.</p>';
+            if (!mainProductImageEl) console.error("Không tìm thấy phần tử #main-product-image");
+            if (!thumbnailContainer) console.error("Không tìm thấy phần tử .thumbnail-images");
         }
-
-        // --- Image Gallery Click Logic (Đã được tích hợp vào vòng lặp ở trên) ---
-        // Đoạn code cũ xử lý click thumbnail ở đây có thể xóa đi hoặc comment lại vì đã xử lý động ở trên.
-
     }
 
-
-    // --- CART PAGE LOGIC ---
+    // --- Cart Page Logic ---
     if (window.location.pathname.includes('cart.html')) {
         const cartContainer = document.getElementById('cart-container');
         const cartItemsList = cartContainer?.querySelector('.cart-items-list');
@@ -930,10 +570,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const renderCartItems = () => {
             if (!cartItemsList || !cartSummary || !cartEmptyMessage || !cartTotalPriceEl) return;
-
             const cart = getCart();
             cartItemsList.innerHTML = '';
-
             if (cart.length === 0) {
                 cartEmptyMessage.classList.remove('hidden');
                 cartItemsList.classList.add('hidden');
@@ -942,7 +580,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 cartEmptyMessage.classList.add('hidden');
                 cartItemsList.classList.remove('hidden');
                 cartSummary.classList.remove('hidden');
-
                 cart.forEach(item => {
                     const itemElement = document.createElement('div');
                     itemElement.classList.add('cart-item');
@@ -950,7 +587,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const price = item.price || 0;
                     const quantity = item.quantity || 1;
                     const subtotal = price * quantity;
-
                     itemElement.innerHTML = `
                         <img src="${item.image || 'https://via.placeholder.com/100x75'}" alt="${item.name || 'Sản phẩm'}" class="cart-item-image">
                         <div class="cart-item-details">
@@ -968,7 +604,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     cartItemsList.appendChild(itemElement);
                 });
-
                 cartTotalPriceEl.textContent = formatCurrency(getCartTotal());
                 addCartEventListeners();
             }
@@ -977,281 +612,63 @@ document.addEventListener('DOMContentLoaded', () => {
         const addCartEventListeners = () => {
             const quantityInputs = cartItemsList?.querySelectorAll('.quantity-input');
             const removeButtons = cartItemsList?.querySelectorAll('.remove-item-btn');
-
             quantityInputs?.forEach(input => {
-                 input.addEventListener('change', (event) => {
+                input.addEventListener('change', (event) => {
                     const inputElement = event.target;
                     const cartItemElement = inputElement.closest('.cart-item');
                     if (!cartItemElement) return;
                     const productId = cartItemElement.dataset.id;
                     const newQuantity = parseInt(inputElement.value, 10);
-
                     if (isNaN(newQuantity) || newQuantity < 1) {
-                         if (confirm(`Số lượng không hợp lệ. Bạn có muốn xóa "${cartItemElement.querySelector('.cart-item-name')?.textContent}" khỏi giỏ hàng?`)) {
-                             if(removeItemFromCart(productId)) renderCartItems();
-                         } else {
-                              const currentCart = getCart();
-                              const item = currentCart.find(i => i.id === productId);
-                              inputElement.value = item ? item.quantity : 1;
-                         }
+                        if (confirm(`Số lượng không hợp lệ. Bạn có muốn xóa "${cartItemElement.querySelector('.cart-item-name')?.textContent}" khỏi giỏ hàng?`)) {
+                            if (removeItemFromCart(productId)) renderCartItems();
+                        } else {
+                            const currentCart = getCart();
+                            const item = currentCart.find(i => i.id === productId);
+                            inputElement.value = item ? item.quantity : 1;
+                        }
                     } else {
-                         if (updateItemQuantity(productId, newQuantity)) {
-                              const updatedCart = getCart(); // Get the latest cart data
-                              const item = updatedCart.find(i => i.id === productId);
-                              const subtotalEl = cartItemElement.querySelector('.cart-item-subtotal');
-                               if (subtotalEl && item) {
-                                   subtotalEl.textContent = formatCurrency((item.price || 0) * (item.quantity || 0));
-                               }
-                              if(cartTotalPriceEl) cartTotalPriceEl.textContent = formatCurrency(getCartTotal());
-                         }
+                        if (updateItemQuantity(productId, newQuantity)) {
+                            const updatedCart = getCart();
+                            const item = updatedCart.find(i => i.id === productId);
+                            const subtotalEl = cartItemElement.querySelector('.cart-item-subtotal');
+                            if (subtotalEl && item) {
+                                subtotalEl.textContent = formatCurrency((item.price || 0) * (item.quantity || 0));
+                            }
+                            if (cartTotalPriceEl) cartTotalPriceEl.textContent = formatCurrency(getCartTotal());
+                        }
                     }
-                 });
+                });
             });
-
             removeButtons?.forEach(button => {
-                 button.addEventListener('click', (event) => {
+                button.addEventListener('click', (event) => {
                     const buttonElement = event.currentTarget;
                     const cartItemElement = buttonElement.closest('.cart-item');
                     if (!cartItemElement) return;
                     const productId = cartItemElement.dataset.id;
                     const productName = cartItemElement.querySelector('.cart-item-name')?.textContent || 'sản phẩm này';
-
                     if (confirm(`Bạn có chắc chắn muốn xóa "${productName}" khỏi giỏ hàng?`)) {
-                         if (removeItemFromCart(productId)) renderCartItems();
+                        if (removeItemFromCart(productId)) renderCartItems();
                     }
-                 });
+                });
             });
         };
 
-        renderCartItems(); // Initial render
-
+        renderCartItems();
         if (checkoutBtn) {
-             checkoutBtn.addEventListener('click', () => {
-                 if (getCartItemCount() > 0) {
-                     alert("Chức năng thanh toán chưa được cài đặt! Giỏ hàng sẽ được xóa (mô phỏng).");
-                     saveCart([]);
-                     renderCartItems();
-                 } else {
-                      alert("Giỏ hàng đang trống.");
-                 }
-             });
-         }
-    } // End cart page logic
-
-
-    // --- Initial Setup on Page Load (COMMON) ---
-    updateHeaderUI(); // Check login status
-    updateCartIcon(); // Update cart icon count
-
-
-    // --- Safety: Restore scroll on page load if no modals are open ---
-    window.addEventListener('load', () => {
-        const modalOpen = document.getElementById('auth-modal')?.style.display === 'flex';
-        const welcomeOpen = document.getElementById('welcome-notification')?.style.display === 'flex';
-        if (!modalOpen && !welcomeOpen) {
-            document.body.classList.remove('scroll-lock'); // Ensure scrolling is enabled
+            checkoutBtn.addEventListener('click', () => {
+                if (getCartItemCount() > 0) {
+                    alert("Chức năng thanh toán chưa được cài đặt! Giỏ hàng sẽ được xóa (mô phỏng).");
+                    saveCart([]);
+                    renderCartItems();
+                } else {
+                    alert("Giỏ hàng đang trống.");
+                }
+            });
         }
-    });
-
-}); // End DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('search-input');
-    const searchBtn = document.getElementById('search-btn');
-
-    const productData = {
-        guitar1: { name: "Guitar Acoustic ABC", price: 5500000 },
-        guitar2: { name: "Đàn Guitar Điện Donner DST-550, Black", price: 8200000 },
-        piano1: { name: "Piano Đứng Yamaha U1", price: 85000000 },
-        piano2: { name: "Piano Điện Casio PX-S1100", price: 18900000 },
-        drum1: { name: "Bộ Trống Jazz Pearl Roadshow", price: 15600000 },
-        violin1: { name: "Violin Acoustic Size 4/4", price: 4200000 },
-        // Thêm các sản phẩm khác nếu cần
-    };
-
-    const searchProducts = (query) => {
-        const results = [];
-        for (const id in productData) {
-            if (productData[id].name.toLowerCase().includes(query.toLowerCase())) {
-                results.push({ id, ...productData[id] });
-            }
-        }
-        return results;
-    };
-
-    const displaySearchResults = (results) => {
-        const container = document.querySelector('.product-grid');
-        container.innerHTML = ''; // Xóa nội dung cũ
-
-        if (results.length === 0) {
-            container.innerHTML = '<p>Không tìm thấy sản phẩm nào.</p>';
-            return;
-        }
-
-        results.forEach(product => {
-            const productCard = document.createElement('div');
-            productCard.classList.add('product-card');
-            productCard.innerHTML = `
-                <a href="product-detail.html?id=${product.id}">
-                    <img src="../img/${product.id}.jpg" alt="${product.name}">
-                    <h3>${product.name}</h3>
-                    <p class="price">${product.price.toLocaleString('vi-VN')} VNĐ</p>
-                </a>
-            `;
-            container.appendChild(productCard);
-        });
-    };
-
-    searchBtn.addEventListener('click', () => {
-        const query = searchInput.value.trim();
-        if (query) {
-            const results = searchProducts(query);
-            displaySearchResults(results);
-        }
-    });
-});
-document.addEventListener('DOMContentLoaded', () => {
-    // --- Default Credentials ---
-    const defaultUser = {
-        email: "Abcxyz123@gmail.com",
-        password: "Abcxyz123"
-    };
-
-    // --- Element References ---
-    let authModalInstance;
-    const authModalEl = document.getElementById('auth-modal-bootstrap');
-    if (authModalEl) {
-        authModalInstance = new bootstrap.Modal(authModalEl);
     }
 
-    const loginBtn = document.getElementById('login-btn');
-    const registerBtn = document.getElementById('register-btn');
-    const authForm = document.getElementById('auth-form');
-    const switchToRegisterLinks = document.querySelectorAll('.switch-to-register');
-    const switchToLoginLinks = document.querySelectorAll('.switch-to-login');
-
-    // Welcome Modal
-    let welcomeModalInstance;
-    let showWelcomeTimeout; // Declare this to be accessible for clearTimeout
-    const welcomeModalEl = document.getElementById('welcome-notification-bootstrap');
-    if (welcomeModalEl) {
-        welcomeModalInstance = new bootstrap.Modal(welcomeModalEl);
-        // Listen for the 'hidden.bs.modal' event to clear timeout if modal is closed by any means
-        welcomeModalEl.addEventListener('hidden.bs.modal', () => {
-            if (showWelcomeTimeout) {
-                clearTimeout(showWelcomeTimeout);
-            }
-        });
-    }
-
-
-    const cartIconCount = document.getElementById('cart-item-count');
-    const authButtonsContainer = document.querySelector('.auth-buttons');
-    const userInfoContainer = document.querySelector('.user-info');
-    const userDisplayNameSpan = document.getElementById('user-display-name');
-    const logoutBtn = document.getElementById('logout-btn');
-    const loginFormErrorDiv = document.getElementById('login-form-error');
-
-    // --- Product Data (Centralized) ---
-    const allProductData = {
-        guitar1: { name: "Guitar Acoustic ABC", price: 5500000, image: "../img/gt1.jpg", category: "guitar", imageGallery: ["../img/gt1.jpg", "../img/gt2.jpg", "../img/gt3.jpg"], description: "<p>Mô tả chi tiết cho Guitar Acoustic ABC... làm từ gỗ thông, âm thanh vang sáng.</p>" },
-        guitar2: { name: "Đàn Guitar Điện Donner DST-550, Black", price: 8200000, image: "../img/gtd1.jpg", category: "guitar", imageGallery: ["../img/gtd1.jpg", "../img/gtd2.jpg", "../img/gtd3.jpg"], description: "<p>Mô tả chi tiết cho Guitar Điện XYZ... pickup humbucker, phù hợp rock.</p>" },
-        guitar_classic_cordoba: { name: "Đàn Guitar Classic Cordoba C1M 1/4", price: 5200000, image: "../img/gtl1.jpg", category: "guitar", imageGallery: ["../img/gtl1.jpg", "../img/gtl2.jpg", "../img/gtl3.jpg", "../img/gtl4.jpg"], description: "<p>Guitar Classic Cordoba C1M 1/4...</p>" },
-        piano_yamaha_u1: { name: "Piano Đứng Yamaha U1", price: 85000000, image: "../img/yamaha1.jpg", category: "piano", imageGallery: ["../img/yamaha1.jpg", "../img/yamaha2.jpg", "../img/yamaha3.jpg"], description: "<p><strong>Đàn Piano Yamaha U1</strong>...</p>" },
-        piano_casio_pxs1100: { name: "Piano Điện Casio PX-S1100", price: 18900000, image: "../img/pn1.jpg", category: "piano", imageGallery: ["../img/pn1.jpg", "../img/pn2.jpg", "../img/pn3.jpg", "../img/pn4.jpg"], description: "<p>Mô tả chi tiết cho Piano Điện Casio PX-S1100...</p>" },
-        piano_kawai_gl10: { name: "Grand Piano Kawai GL-10", price: 350000000, image: "../img/pn5.jpg", category: "piano", imageGallery: ["../img/pn5.jpg", "../img/pn6.jpg", "../img/pn7.jpg", "../img/pn8.jpg"], description: "<p>Mô tả chi tiết cho Grand Piano Kawai GL-10...</p>" },
-        drum_pearl_roadshow: { name: "Bộ Trống Jazz Pearl Roadshow", price: 15600000, image: "../img/dr1.jpg", category: "drums", imageGallery: ["../img/dr1.jpg", "../img/dr2.jpg", "../img/dr3.jpg", "../img/dr4.jpg"], description: "<p>Mô tả chi tiết cho Bộ Trống Jazz Pearl Roadshow...</p>" },
-        drum_roland_td1dmk: { name: "Bộ Trống Điện Roland TD-1DMK", price: 22500000, image: "../img/dr5.jpg", category: "drums", imageGallery: ["../img/dr5.jpg", "../img/dr6.jpg", "../img/dr7.jpg", "../img/dr8.jpg"], description: "<p>Mô tả chi tiết cho Trống Điện Roland TD-1DMK...</p>" },
-        drum_cajon_meinl: { name: "Trống Cajon Meinl", price: 3100000, image: "../img/dr10.jpg", category: "drums", imageGallery: ["../img/dr10.jpg"], description: "<p>Mô tả chi tiết cho Trống Cajon Meinl...</p>" },
-        violin_acoustic_44: { name: "Violin Acoustic Size 4/4", price: 4200000, image: "../img/vi1.jpg", category: "violin", imageGallery: ["../img/vi1.jpg", "../img/vi2.jpg", "../img/vi3.jpg", "../img/vi4.jpg"], description: "<p>Mô tả chi tiết cho Violin Acoustic Size 4/4...</p>" },
-        violin_yamaha_yev104: { name: "Violin Điện Yamaha YEV104", price: 19800000, image: "../img/vi11.jpg", category: "violin", imageGallery: ["../img/vi11.jpg"], description: "<p>Mô tả chi tiết cho Violin Điện Yamaha YEV104...</p>" },
-        violin_size_half: { name: "Violin Size 1/2 Cho Bé", price: 2900000, image: "../img/vi21.jpg", category: "violin", imageGallery: ["../img/vi21.jpg"], description: "<p>Mô tả chi tiết cho Violin Size 1/2 Cho Bé...</p>" }
-    };
-
-
-    // --- Utility Functions ---
-    const formatCurrency = (number) => {
-        if (isNaN(number)) return "0 VNĐ";
-        return number.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-    };
-
-    const renderProductDescription = (container, descriptionHtml) => {
-        if (!container) return;
-        container.innerHTML = descriptionHtml || "<p>Không có mô tả.</p>";
-    };
-
-    // --- Cart Functions ---
-    const getCart = () => JSON.parse(localStorage.getItem('shoppingCart') || '[]');
-    const saveCart = (cart) => { localStorage.setItem('shoppingCart', JSON.stringify(cart)); updateCartIcon(); };
-    const addItemToCart = (productToAdd) => { /* ... (giữ nguyên) ... */ };
-    const updateItemQuantity = (productId, newQuantity) => { /* ... (giữ nguyên) ... */ };
-    const removeItemFromCart = (productId) => { /* ... (giữ nguyên) ... */ };
-    const getCartItemCount = () => getCart().reduce((total, item) => total + (item.quantity || 0), 0);
-    const getCartTotal = () => getCart().reduce((total, item) => total + ((item.price || 0) * (item.quantity || 0)), 0);
-
-    const updateCartIcon = () => {
-        if (cartIconCount) {
-            const count = getCartItemCount();
-            cartIconCount.textContent = count;
-            cartIconCount.style.display = count === 0 ? 'none' : 'inline-block';
-        }
-    };
-
-    const showAddToCartConfirmation = (buttonElement) => { /* ... (giữ nguyên) ... */ };
-
-    // --- UI Update & Auth Logic ---
-    const updateHeaderUI = () => {
-        const loggedInUser = sessionStorage.getItem('loggedInUser');
-        if (authButtonsContainer && userInfoContainer && userDisplayNameSpan) {
-            if (loggedInUser) {
-                authButtonsContainer.classList.add('d-none'); // Bootstrap hidden class
-                userInfoContainer.classList.remove('d-none');
-                userInfoContainer.classList.add('d-flex'); // To make it visible and align items
-                userDisplayNameSpan.textContent = loggedInUser;
-            } else {
-                authButtonsContainer.classList.remove('d-none');
-                userInfoContainer.classList.add('d-none');
-                userDisplayNameSpan.textContent = '';
-            }
-        }
-    };
-
-    const handleLoginSuccess = (userIdentifier) => { /* ... (giữ nguyên) ... */ };
-    const handleLogout = () => { /* ... (giữ nguyên) ... */ };
-    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
-
-    // --- Modal Handling (Bootstrap) ---
-    const openModal = (initialTabId) => { /* ... (giữ nguyên) ... */ };
-    if (loginBtn) { /* ... (giữ nguyên, đảm bảo initialTabId đúng) ... */ }
-    if (registerBtn) { /* ... (giữ nguyên, đảm bảo initialTabId đúng) ... */ }
-    switchToRegisterLinks.forEach(link => { /* ... (giữ nguyên) ... */ });
-    switchToLoginLinks.forEach(link => { /* ... (giữ nguyên) ... */ });
-
-    // Welcome Modal - Show after timeout
-    if (welcomeModalInstance && welcomeModalEl) {
-        showWelcomeTimeout = setTimeout(() => { // Assign to the declared variable
-            if (welcomeModalInstance) {
-                welcomeModalInstance.show();
-            }
-        }, 3000);
-        // No need for separate close button listener if data-bs-dismiss="modal" is used
-    }
-
-    // --- Form Validation & Submission ---
-    const showError = (inputElement, message) => { /* ... (giữ nguyên) ... */ };
-    const clearError = (inputElement) => { /* ... (giữ nguyên) ... */ };
-    const clearFormErrors = (form) => { /* ... (giữ nguyên) ... */ };
-    // const validateRequired, validateEmailFormat, etc. (giữ nguyên)
-    const validateForm = () => { /* ... (giữ nguyên, hoặc hoàn thiện validation) ... */ return true;}; // Bỏ qua validation phức tạp để test
-    if (authForm) { authForm.addEventListener('submit', (event) => { /* ... (giữ nguyên) ... */ });}
-
-    // --- PRODUCT DETAIL PAGE LOGIC ---
-    if (window.location.pathname.includes('product-detail.html')) { /* ... (giữ nguyên) ... */ }
-
-    // --- CART PAGE LOGIC ---
-    if (window.location.pathname.includes('cart.html')) { /* ... (giữ nguyên) ... */ }
-
-
-    // --- PRODUCT SEARCH FUNCTIONALITY (for index.html) ---
+    // --- Product Search Functionality ---
     const productSearchForm = document.getElementById('product-search-form');
     const searchInputHeader = document.getElementById('search-input-header');
     const searchSuggestionsHeaderDiv = document.getElementById('search-suggestions-header');
@@ -1259,7 +676,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchResultsGrid = document.getElementById('search-results-grid');
     const originalProductSections = document.getElementById('original-product-sections');
 
-    const displaySearchResults = (results) => { /* ... (giữ nguyên từ lần trước) ... */ };
+    const displaySearchResults = (results) => {
+        if (!searchResultsGrid || !searchResultsContainer || !originalProductSections) return;
+        searchResultsGrid.innerHTML = '';
+        if (results.length === 0) {
+            searchResultsGrid.innerHTML = '<p>Không tìm thấy sản phẩm nào.</p>';
+            searchResultsContainer.style.display = 'block';
+            originalProductSections.style.display = 'none';
+            return;
+        }
+        results.forEach(product => {
+            const productCard = document.createElement('div');
+            productCard.classList.add('col');
+            productCard.innerHTML = `
+                <div class="card h-100 product-card">
+                    <a href="product-detail.html?id=${product.id}" class="text-decoration-none text-dark">
+                        <img src="${product.image}" class="card-img-top" alt="${product.name}">
+                        <div class="card-body">
+                            <h5 class="card-title">${product.name}</h5>
+                            <p class="card-text price">${formatCurrency(product.price)}</p>
+                        </div>
+                    </a>
+                </div>
+            `;
+            searchResultsGrid.appendChild(productCard);
+        });
+        searchResultsContainer.style.display = 'block';
+        originalProductSections.style.display = 'none';
+    };
+
     const performSearch = (query) => {
         if (query.trim() === "") {
             if (originalProductSections) originalProductSections.style.display = 'block';
@@ -1267,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (searchResultsGrid) searchResultsGrid.innerHTML = '';
             return;
         }
-        const searchResults = []; // Re-filter based on query
+        const searchResults = [];
         for (const id in allProductData) {
             if (allProductData[id].name.toLowerCase().includes(query.toLowerCase())) {
                 searchResults.push({ id, ...allProductData[id] });
@@ -1276,36 +721,28 @@ document.addEventListener('DOMContentLoaded', () => {
         displaySearchResults(searchResults);
     };
 
-
-    // --- PRODUCT SEARCH SUGGESTIONS ---
     const showSearchSuggestions = (query) => {
         if (!searchInputHeader || !searchSuggestionsHeaderDiv) return;
         const lowerCaseQuery = query.toLowerCase().trim();
-        searchSuggestionsHeaderDiv.innerHTML = ''; // Clear old suggestions
-
-        if (lowerCaseQuery.length < 1) { // Minimum characters to trigger suggestions (e.g., 1 or 2)
+        searchSuggestionsHeaderDiv.innerHTML = '';
+        if (lowerCaseQuery.length < 1) {
             searchSuggestionsHeaderDiv.classList.remove('show');
             return;
         }
-
         const matchedProducts = [];
         for (const id in allProductData) {
             if (allProductData[id].name.toLowerCase().includes(lowerCaseQuery)) {
                 matchedProducts.push({ id, ...allProductData[id] });
             }
         }
-
         if (matchedProducts.length > 0) {
-            matchedProducts.slice(0, 5).forEach(product => { // Show max 5 suggestions
+            matchedProducts.slice(0, 5).forEach(product => {
                 const suggestionItem = document.createElement('button');
                 suggestionItem.type = 'button';
                 suggestionItem.classList.add('dropdown-item');
                 suggestionItem.textContent = product.name;
                 suggestionItem.addEventListener('click', () => {
-                    searchInputHeader.value = product.name;
-                    searchSuggestionsHeaderDiv.classList.remove('show');
-                    searchSuggestionsHeaderDiv.innerHTML = '';
-                    performSearch(product.name); // Trigger search with selected suggestion
+                    window.location.href = `product-detail.html?id=${product.id}`;
                 });
                 searchSuggestionsHeaderDiv.appendChild(suggestionItem);
             });
@@ -1319,17 +756,14 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInputHeader.addEventListener('input', () => {
             showSearchSuggestions(searchInputHeader.value);
         });
-
-        // Hide suggestions when clicking outside
         document.addEventListener('click', (event) => {
             if (searchSuggestionsHeaderDiv && !searchInputHeader.contains(event.target) && !searchSuggestionsHeaderDiv.contains(event.target)) {
                 searchSuggestionsHeaderDiv.classList.remove('show');
             }
         });
-         // Show suggestions on focus if there's text
         searchInputHeader.addEventListener('focus', () => {
             if (searchInputHeader.value.trim().length > 0) {
-                 showSearchSuggestions(searchInputHeader.value);
+                showSearchSuggestions(searchInputHeader.value);
             }
         });
     }
@@ -1338,222 +772,23 @@ document.addEventListener('DOMContentLoaded', () => {
         productSearchForm.addEventListener('submit', (event) => {
             event.preventDefault();
             const query = searchInputHeader.value;
-            if (searchSuggestionsHeaderDiv) { // Hide suggestions on explicit search
+            if (searchSuggestionsHeaderDiv) {
                 searchSuggestionsHeaderDiv.classList.remove('show');
                 searchSuggestionsHeaderDiv.innerHTML = '';
             }
             performSearch(query);
         });
     }
-    
+
     // --- Initial Setup ---
     updateHeaderUI();
     updateCartIcon();
-}); // End DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Lấy các phần tử cần thiết
-    const loginBtn = document.getElementById('login-btn');
-    const registerBtn = document.getElementById('register-btn');
-    const authModal = document.getElementById('auth-modal-bootstrap');
-    if (!authModal) return;
 
-    // Khởi tạo modal Bootstrap
-    const bsAuthModal = new bootstrap.Modal(authModal);
-
-    // Khi nhấn nút Đăng nhập
-    if (loginBtn) {
-        loginBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Chuyển tab về Đăng nhập
-            const loginTab = authModal.querySelector('[data-tab="login"]');
-            if (loginTab) loginTab.click();
-            bsAuthModal.show();
-        });
-    }
-
-    // Khi nhấn nút Đăng ký
-    if (registerBtn) {
-        registerBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Chuyển tab về Đăng ký
-            const registerTab = authModal.querySelector('[data-tab="register"]');
-            if (registerTab) registerTab.click();
-            bsAuthModal.show();
-        });
-    }
-});document.addEventListener('DOMContentLoaded', () => {
-    // ...existing code...
-
-    // Lấy form và các phần tử cần thiết
-    const authForm = document.getElementById('auth-form');
-    const loginFormErrorDiv = document.getElementById('login-form-error');
-
-    // Hàm hiển thị lỗi cho input
-    function showError(input, message) {
-        const formGroup = input.closest('.form-group');
-        const errorDiv = formGroup ? formGroup.querySelector('.error-message') : null;
-        if (errorDiv) errorDiv.textContent = message;
-        input.classList.add('is-invalid');
-    }
-    // Hàm xóa lỗi cho input
-    function clearError(input) {
-        const formGroup = input.closest('.form-group');
-        const errorDiv = formGroup ? formGroup.querySelector('.error-message') : null;
-        if (errorDiv) errorDiv.textContent = '';
-        input.classList.remove('is-invalid');
-    }
-
-    // Xử lý submit form
-    if (authForm) {
-        authForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            let hasError = false;
-            // Xác định tab đang active
-            const loginTab = document.getElementById('login-content-bootstrap');
-            const registerTab = document.getElementById('register-content-bootstrap');
-            if (loginTab.classList.contains('show', 'active')) {
-                // Đăng nhập
-                const usernameInput = document.getElementById('login-username');
-                const passwordInput = document.getElementById('login-password');
-                clearError(usernameInput);
-                clearError(passwordInput);
-                if (!usernameInput.value.trim()) {
-                    showError(usernameInput, 'Vui lòng nhập tên đăng nhập hoặc email.');
-                    hasError = true;
-                }
-                if (!passwordInput.value.trim()) {
-                    showError(passwordInput, 'Vui lòng nhập mật khẩu.');
-                    hasError = true;
-                }
-                if (hasError) return;
-
-                // Kiểm tra tài khoản mặc định
-                const defaultUser = {
-                    email: "Abcxyz123@gmail.com",
-                    username: "Abcxyz123",
-                    password: "Abcxyz123"
-                };
-                const entered = usernameInput.value.trim();
-                const enteredPassword = passwordInput.value.trim();
-                if (
-                    (entered === defaultUser.email || entered === defaultUser.username) &&
-                    enteredPassword === defaultUser.password
-                ) {
-                    // Đăng nhập thành công
-                    sessionStorage.setItem('loggedInUser', entered);
-                    window.location.reload();
-                } else {
-                    if (loginFormErrorDiv) {
-                        loginFormErrorDiv.textContent = 'Tên đăng nhập/email hoặc mật khẩu không đúng!';
-                        loginFormErrorDiv.style.display = 'block';
-                    }
-                    passwordInput.value = '';
-                    passwordInput.focus();
-                }
-            } else if (registerTab.classList.contains('show', 'active')) {
-                // Đăng ký
-                const usernameInput = document.getElementById('register-username');
-                const emailInput = document.getElementById('register-email');
-                const passwordInput = document.getElementById('register-password');
-                const confirmInput = document.getElementById('register-confirm-password');
-                clearError(usernameInput);
-                clearError(emailInput);
-                clearError(passwordInput);
-                clearError(confirmInput);
-
-                // Kiểm tra hợp lệ
-                if (!usernameInput.value.trim()) {
-                    showError(usernameInput, 'Vui lòng nhập tên người dùng.');
-                    hasError = true;
-                }
-                if (!emailInput.value.trim()) {
-                    showError(emailInput, 'Vui lòng nhập email.');
-                    hasError = true;
-                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())) {
-                    showError(emailInput, 'Email không hợp lệ.');
-                    hasError = true;
-                }
-                if (!passwordInput.value.trim()) {
-                    showError(passwordInput, 'Vui lòng nhập mật khẩu.');
-                    hasError = true;
-                } else if (passwordInput.value.length < 6) {
-                    showError(passwordInput, 'Mật khẩu phải có ít nhất 6 ký tự.');
-                    hasError = true;
-                }
-                if (!confirmInput.value.trim()) {
-                    showError(confirmInput, 'Vui lòng xác nhận mật khẩu.');
-                    hasError = true;
-                } else if (passwordInput.value !== confirmInput.value) {
-                    showError(confirmInput, 'Mật khẩu xác nhận không khớp.');
-                    hasError = true;
-                }
-                if (hasError) return;
-
-                // Đăng ký thành công (demo)
-                alert('Đăng ký thành công! Bạn có thể đăng nhập bằng tài khoản mặc định.');
-                // Chuyển sang tab đăng nhập
-                document.querySelector('.tab-button[data-tab="login"]').click();
-                authForm.reset();
-            }
-        });
-    }
-    // ...existing code...
-});
-document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('search-input-header');
-    const suggestionsDiv = document.getElementById('search-suggestions-header');
-    const allProductData = {
-        guitar1: { name: "Guitar Acoustic ABC" },
-        guitar2: { name: "Đàn Guitar Điện Donner DST-550, Black" },
-        guitar_donner_dst550: { name: "Đàn Guitar Classic Cordoba C1M 1/4" },
-        piano1: { name: "Piano Đứng Yamaha U1" },
-        piano2: { name: "Piano Điện Casio PX-S1100" },
-        piano3: { name: "Grand Piano Kawai GL-10" },
-        drum1: { name: "Bộ Trống Jazz Pearl Roadshow" },
-        drum2: { name: "Bộ Trống Điện Roland TD-1DMK" },
-        drum3: { name: "Trống Cajon Meinl" },
-        violin1: { name: "Violin Acoustic Size 4/4" },
-        violin2: { name: "Violin Điện Yamaha YEV104" },
-        violin3: { name: "Violin Size 1/2 Cho Bé" }
-    };
-
-    if (searchInput && suggestionsDiv) {
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim().toLowerCase();
-            suggestionsDiv.innerHTML = '';
-            if (!query) {
-                suggestionsDiv.classList.remove('show');
-                return;
-            }
-            const matches = [];
-            for (const id in allProductData) {
-                if (allProductData[id].name.toLowerCase().includes(query)) {
-                    matches.push({ id, name: allProductData[id].name });
-                }
-            }
-            if (matches.length > 0) {
-                matches.slice(0, 5).forEach(product => {
-                    const item = document.createElement('button');
-                    item.type = 'button';
-                    item.className = 'dropdown-item';
-                    item.textContent = product.name;
-                    item.onclick = () => {
-                        // Chuyển hướng đến trang chi tiết sản phẩm
-                        window.location.href = `product-detail.html?id=${product.id}`;
-                    };
-                    suggestionsDiv.appendChild(item);
-                });
-                suggestionsDiv.classList.add('show');
-            } else {
-                suggestionsDiv.classList.remove('show');
-            }
-        });
-
-        // Ẩn gợi ý khi click ra ngoài
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
-                suggestionsDiv.classList.remove('show');
-            }
-        });
-    }
+    window.addEventListener('load', () => {
+        const modalOpen = authModalEl?.classList.contains('show');
+        const welcomeOpen = welcomeModalEl?.classList.contains('show');
+        if (!modalOpen && !welcomeOpen) {
+            document.body.classList.remove('scroll-lock');
+        }
+    });
 });
